@@ -1,0 +1,13 @@
+numpy
+pandas
+torch
+torchvision
+tqdm
+transformers==4.18.0
+matplotlib
+datasets==1.18.3
+huggingface-hub==0.6.0
+packaging==20.9
+argparse
+tensorboard
+setuptools==59.5.0
