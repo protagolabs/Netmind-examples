@@ -17,10 +17,10 @@ from NetmindMixins.Netmind import nmp
 model.train()
 t_total = nmp.cur_step
 
-!epochs_trained = nmp.cur_epoch
++epochs_trained = nmp.cur_epoch
 
-!if nmp.should_skip_step():
-!   continue
++if nmp.should_skip_step():
++   continue
 
 !nmp.step({"loss": loss.item(), "Learning rate": scheduler.get_last_lr()[0]})
 !nmp.save_pretrained_by_step(args.save_steps)
