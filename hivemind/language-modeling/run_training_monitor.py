@@ -100,16 +100,8 @@ class CheckpointHandler:
         dht: hivemind.DHT,
     ):
         self.save_checkpoint_step_interval = monitor_args.save_checkpoint_step_interval
-        # self.repo_path = monitor_args.repo_path
-        # self.repo_url = monitor_args.repo_url
         self.upload_interval = monitor_args.upload_interval
         self.previous_step = -1
-        # self.save_total_limit = training_args.save_total_limit
-        # initialize the checkpoint
-        # self.checkpoints_sorted = {}
-        # for i in range(self.save_total_limit):
-        #     output_dir = self.repo_path + "/checkpoint_" + str(i)
-        #     self.checkpoints_sorted[output_dir] = 10000000
 
         self.model, _ = get_model(dataset_args)
         self.model = NetmindModel(self.model)
