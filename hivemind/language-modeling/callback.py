@@ -96,55 +96,6 @@ class CollaborativeCallback(transformers.TrainerCallback):
 
         self.samples = local_progress.samples_accumulated
 
-
-    # def on_step_end(
-    #     self, args: TrainingArguments, state: transformers.TrainerState, control: transformers.TrainerControl, **kwargs
-    # ):
-    #     control.should_log = True
-    #     if not self.params_are_finite():
-    #         self.restore_from_backup(self.latest_backup)
-    #         return control
-
-    #     local_progress = self.optimizer.local_progress
-
-    #     if state.log_history:
-    #         self.loss += state.log_history[-1]["loss"]
-    #         self.steps += 1
-
-    #         if self.optimizer.local_epoch != self.last_reported_collaboration_step:
-    #             self.last_reported_collaboration_step = self.optimizer.local_epoch
-    #             self.total_samples_processed += self.samples
-    #             samples_per_second = local_progress.samples_per_second
-    #             statistics = utils.LocalMetrics(
-    #                 step=self.optimizer.local_epoch,
-    #                 samples_per_second=samples_per_second,
-    #                 samples_accumulated=self.samples,
-    #                 loss=self.loss,
-    #                 mini_steps=self.steps,
-    #             )
-    #             logger.info(f"Step #{self.optimizer.local_epoch}")
-    #             logger.info(f"Your current contribution: {self.total_samples_processed} samples")
-    #             logger.info(f"Performance: {samples_per_second:.3f} samples/sec")
-    #             if self.steps:
-    #                 logger.info(f"Local loss: {self.loss / self.steps:.5f}")
-    #             if self.optimizer.local_epoch % self.backup_every_steps == 0:
-    #                 self.latest_backup = self.backup_state()
-
-    #             self.loss = 0
-    #             self.steps = 0
-    #             if self.optimizer.is_synchronized_with_peers():
-    #                 self.dht.store(
-    #                     key=self.optimizer.run_id + "_metrics",
-    #                     subkey=self.local_public_key,
-    #                     value=statistics.dict(),
-    #                     expiration_time=get_dht_time() + self.statistics_expiration,
-    #                     return_future=True,
-    #                 )
-
-    #     self.samples = local_progress.samples_accumulated
-
-    #     return control
-
     @torch.no_grad()
     def params_are_finite(self):
         for param in self.model.parameters():

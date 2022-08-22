@@ -89,20 +89,6 @@ class TrainingMonitorArguments(BaseTrainingArguments):
     store_checkpoints: bool = field(default=False, metadata={"help": "If True, enables CheckpointHandler"})
 
 
-
-# wrap the optimizer with gradient clipping
-class LambWithGradientClipping(Lamb):
-    """A version of LAMB that clips gradients based on their norm."""
-
-    def __init__(self, *args, max_grad_norm=1.0, **kwargs):
-        self.max_grad_norm = max_grad_norm
-        super().__init__(*args, **kwargs)
-
-    def step(self, *args, **kwargs):
-        iter_params = (param for group in self.param_groups for param in group["params"])
-        torch.nn.utils.clip_grad_norm_(iter_params, self.max_grad_norm)
-        return super().step(*args, **kwargs)
-
 class CheckpointHandler:
     def __init__(
         self,
@@ -141,7 +127,7 @@ class CheckpointHandler:
         ]
 
         opt = NetmindOptimizer(
-            LambWithGradientClipping(
+            Lamb(
                 optimizer_grouped_parameters,
                 lr=training_args.learning_rate,
                 betas=(training_args.adam_beta1, training_args.adam_beta2),

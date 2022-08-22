@@ -14,19 +14,6 @@ from NetmindMixins.Netmind import htp
 
 import utils
 
-# wrap the optimizer with gradient clipping
-class LambWithGradientClipping(Lamb):
-    """A version of LAMB that clips gradients based on their norm."""
-
-    def __init__(self, *args, max_grad_norm=1.0, **kwargs):
-        self.max_grad_norm = max_grad_norm
-        super().__init__(*args, **kwargs)
-
-    def step(self, *args, **kwargs):
-        iter_params = (param for group in self.param_groups for param in group["params"])
-        torch.nn.utils.clip_grad_norm_(iter_params, self.max_grad_norm)
-        return super().step(*args, **kwargs)
-
 
 def get_optimizer(model, training_args, collaboration_args, averager_args, tracker_args):
 
@@ -52,7 +39,7 @@ def get_optimizer(model, training_args, collaboration_args, averager_args, track
     adjusted_target_batch_size = collaboration_args.target_batch_size - collaboration_args.batch_size_lead
 
     # define your optimizer
-    opt = lambda params: LambWithGradientClipping(
+    opt = lambda params: Lamb(
         params,
         lr=training_args.learning_rate,
         betas=(training_args.adam_beta1, training_args.adam_beta2),
