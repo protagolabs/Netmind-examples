@@ -76,7 +76,7 @@ class CustomTrainerCallback(NetmindTrainerCallback):
 
  if args.do_train:
 
-    +latest_checkpoint = nmp.last_checkpoint_from_netmind()
++    latest_checkpoint = nmp.last_checkpoint_from_netmind()
 
     trainer.train(resume_from_checkpoint=latest_checkpoint)
 ```
