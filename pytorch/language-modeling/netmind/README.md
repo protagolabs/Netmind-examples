@@ -11,11 +11,11 @@ There are two sets of scripts provided. The first set leverages the Trainer API.
 
 trainer_custom.py
 
-```bash
+```diff
 from NetmindMixins.Netmind import nmp
 
 model.train()
-@t_total = nmp.cur_step
+!t_total = nmp.cur_step
 
 !epochs_trained = nmp.cur_epoch
 
