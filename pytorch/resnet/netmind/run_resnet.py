@@ -16,7 +16,7 @@ from argument import setup_args
 from model import get_model
 from data import get_data
 from trainer import train, validate
-from NetmindMixins.Netmind import nmp, NetmindDistributedModel, NetmindOptimizer, MODE_TRAIN, MODE_EVAL
+from NetmindMixins.Netmind import nmp, NetmindDistributedModel, NetmindOptimizer
 
 
 def main(args):
