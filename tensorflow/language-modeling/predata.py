@@ -1,10 +1,10 @@
 import datasets
-from transformers import AutoTokenizer, AutoConfig
+from transformers import AutoTokenizer
 
 
 # data_args
 max_seq_length=512 # 1024? 512?
-preprocessing_num_workers = 128 # check num of your cpu cores
+preprocessing_num_workers = 64 # check num of your cpu cores
 overwrite_cache = True
 tokenizer_name = "bert-base-uncased"
 model_name_or_path = None # for training from scratch
@@ -91,4 +91,4 @@ tokenized_datasets = tokenized_datasets.map(
 )
 
 
-tokenized_datasets.save_to_disk("./data_bert")
+tokenized_datasets.save_to_disk("./data_mlm")
