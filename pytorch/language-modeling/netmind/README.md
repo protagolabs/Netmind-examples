@@ -15,7 +15,7 @@ trainer_custom.py
 from NetmindMixins.Netmind import nmp
 
 model.train()
-! t_total = nmp.cur_step
+@t_total = nmp.cur_step
 
 !epochs_trained = nmp.cur_epoch
 
