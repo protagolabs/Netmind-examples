@@ -22,36 +22,36 @@ t_total = nmp.cur_step
 +if nmp.should_skip_step():
 +   continue
 
-!nmp.step({"loss": loss.item(), "Learning rate": scheduler.get_last_lr()[0]})
-!nmp.save_pretrained_by_step(args.save_steps)
++nmp.step({"loss": loss.item(), "Learning rate": scheduler.get_last_lr()[0]})
++nmp.save_pretrained_by_step(args.save_steps)
 
 ```
 
 run_lm_no_trainer.py
 
-```bash
+```diff
 from NetmindMixins.Netmind import nmp, NetmindDistributedModel, NetmindOptimizer
 
-!nmp.init()
++nmp.init()
 
-!ddp_model = NetmindDistributedModel(
-!        torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank], output_device=args.local_rank)
-!    )
++ddp_model = NetmindDistributedModel(
++        torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank], output_device=args.local_rank)
++    )
 
-!optimizer = NetmindOptimizer(get_optimizer(ddp_model,args)) 
++optimizer = NetmindOptimizer(get_optimizer(ddp_model,args)) 
 
-!nmp.init_train_bar(total_epoch=args.num_train_epochs, step_per_epoch=len(dataloader))
++nmp.init_train_bar(total_epoch=args.num_train_epochs, step_per_epoch=len(dataloader))
 train(dataloader, ddp_model, optimizer, args, device)
 
 main(args)
-!nmp.finish_training()
++nmp.finish_training()
 ```
 
 ### Hugginface Trainer
 
 trainer.py:
 
-```bash
+```diff
 from NetmindMixins.Netmind import nmp, NetmindTrainerCallback
 
 class CustomTrainerCallback(NetmindTrainerCallback):
@@ -76,7 +76,7 @@ class CustomTrainerCallback(NetmindTrainerCallback):
 
  if args.do_train:
 
-    !latest_checkpoint = nmp.last_checkpoint_from_netmind()
+    +latest_checkpoint = nmp.last_checkpoint_from_netmind()
 
     trainer.train(resume_from_checkpoint=latest_checkpoint)
 ```
@@ -85,12 +85,12 @@ class CustomTrainerCallback(NetmindTrainerCallback):
 run_lm.py
 
 
-```bash
+```diff
 from NetmindMixins.Netmind import nmp
 
-!nmp.init(load_checkpoint=False)
++nmp.init(load_checkpoint=False)
 train(tokenizer, data_collator, dataset, model, optimizer, args)
 
 main(args)
-!nmp.finish_training()
++nmp.finish_training()
 ```
