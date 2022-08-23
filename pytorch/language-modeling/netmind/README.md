@@ -54,7 +54,7 @@ trainer.py:
 ```diff
 from NetmindMixins.Netmind import nmp, NetmindTrainerCallback
 
-class CustomTrainerCallback(NetmindTrainerCallback):
++class CustomTrainerCallback(NetmindTrainerCallback):
     def __init__(self):
         super().__init__()
 
