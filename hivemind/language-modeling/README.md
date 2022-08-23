@@ -140,9 +140,9 @@ def train(tokenized_datasets, model, tokenizer, training_args, data_collator, op
         # initialize calculated gradients (from prev step)
         optimizer.zero_grad()
         # pull all tensor batches required for training
-@       input_ids = batch['input_ids'].to(device,non_blocking=True)
-@       attention_mask = batch['attention_mask'].to(device,non_blocking=True)
-@       labels = batch['labels'].to(device,non_blocking=True)
+-       input_ids = batch['input_ids'].to(device,non_blocking=True)
+-       attention_mask = batch['attention_mask'].to(device,non_blocking=True)
+-       labels = batch['labels'].to(device,non_blocking=True)
         # process
         outputs = model(input_ids=input_ids,attention_mask=attention_mask,
                         labels=labels)
@@ -396,7 +396,7 @@ if __name__ == "__main__":
 +this is data_collator for mlm model (BERT)
 tokenized_datasets = get_data(dataset_args)
 
-+data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm_probability=0.15)
+-data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm_probability=0.15)
 
 optimizer, collaborative_call, local_public_key = get_optimizer(model, training_args, collaboration_args, averager_args, tracker_args)
 
