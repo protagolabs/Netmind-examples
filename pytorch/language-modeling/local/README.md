@@ -26,7 +26,7 @@ bash trainer_customer/run_lm_no_trainer.sh
 
 **arguments:** Define the parameters used in the code
 
-**data:** Load the tokenized dataset that processed before. The instruction of how to tokenize data could be seen in [here](https://github.com/protagolabs/Netmind-examples/tree/xiangpeng/pytorch/data/process.py
+**data:** Load the tokenized dataset that processed before. The instruction of how to tokenize data could be seen in [here](https://github.com/protagolabs/Netmind-examples/tree/xiangpeng/pytorch/data/process.py)
 
 **model:** Define the model to be trained.
 
