@@ -16,28 +16,6 @@ import utils
 use_hivemind_log_handler("in_root_logger")
 logger = get_logger(__name__)
 
-LRSchedulerBase = getattr(torch.optim.lr_scheduler, "_LRScheduler", None)
-
-
-
-class NoOpScheduler(LRSchedulerBase):
-    """Dummy scheduler for transformers.Trainer. The real scheduler is defined in Optimizer.scheduler"""
-
-    def get_lr(self):
-        return [group["lr"] for group in self.optimizer.param_groups]
-
-    def print_lr(self, *args, **kwargs):
-        if self.optimizer.scheduler:
-            return self.optimizer.scheduler.print_lr(*args, **kwargs)
-
-    def step(self):
-        self._last_lr = self.get_lr()
-
-    def state_dict(self):
-        return {}
-
-    def load_state_dict(self, *args, **kwargs):
-        logger.debug("Called NoOpScheduler.load_state_dict")
 
 def get_optimizer(model, training_args, collaboration_args, averager_args, tracker_args):
 
