@@ -34,4 +34,4 @@ bash trainer_customer/run_lm_no_trainer.sh
 
 **trainer:** Customer defined Training loop or Huggingface Trainer.
 
-**run_lm:**  main file for runing the language model.
+**train_dist:**  main file for runing the language model.

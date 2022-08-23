@@ -16,7 +16,7 @@ run_trainer.py --model_name_or_path=bert-base-uncased
 
 ### Explanation for the code files
 
-**arguments:** Define the parameters used in the code, in Netmind website, it pre-defines the parameter, so we do not need this file when submit our code, just to modify the value through the website. The target_batch_size represents the total batch size to run one optimization step, could be large (like 4096), the per_device_train_batch_size represents the batch size trained on one GPU, constraints by the capacity of that GPU. Note that the learning rate should corresponding to the target batch size.
+**arguments:** Define the parameters used in the code, we do not need to modify the files, just change some of the values if necessary. The target_batch_size represents the total batch size to run one optimization step, could be large (like 4096), the per_device_train_batch_size represents the batch size trained on one GPU, constraints by the capacity of that GPU. Note that the learning rate should corresponding to the target batch size.
 
 **data:** Load the tokenized dataset that processed before, named as tokenized_datasets. 
 
@@ -25,8 +25,8 @@ run_trainer.py --model_name_or_path=bert-base-uncased
 **optimizer:** Define the hivmind optimizer for netmind.
 
 ```diff
-+define the optimzier
-+this part does not need any modification if you intends to use other optimizers
++#define the optimzier
++#this part does not need any modification if you intends to use other optimizers
 def get_optimizer(model, training_args, collaboration_args, averager_args, tracker_args):
 
     validators, local_public_key = utils.make_validators(collaboration_args.experiment_prefix)
@@ -50,7 +50,7 @@ def get_optimizer(model, training_args, collaboration_args, averager_args, track
 
     adjusted_target_batch_size = collaboration_args.target_batch_size - collaboration_args.batch_size_lead
 
-+define your opmizer here (the only part to be modified)
++#define your opmizer here (the only part to be modified)
     opt = lambda params: Lamb(
         params,
         lr=training_args.learning_rate,
@@ -72,7 +72,7 @@ def get_optimizer(model, training_args, collaboration_args, averager_args, track
             "weight_decay": 0.0,
         },
     ]
-+Then wrap the optmizer with hivemind Optimzier and netmind api, this part of code does not need any modification
++#Then wrap the optmizer with hivemind Optimzier and netmind api, this part of code does not need any modification
 
     optimizer = Optimizer(
         dht=dht,
@@ -118,7 +118,7 @@ def get_optimizer(model, training_args, collaboration_args, averager_args, track
 **trainer:** Customer defined Training loop.
 
 ```diff
-+define training loop here, this part of the code usually does not require any modification, unless the input of the model is slightly different.
++#define training loop here, this part of the code usually does not require any modification, unless the input of the model is slightly different.
 def train(tokenized_datasets, model, tokenizer, training_args, data_collator, optimizer, collaborative_call, local_public_key):
 
     dataloader = DataLoader(tokenized_datasets["train"], shuffle=True, collate_fn=data_collator, batch_size=training_args.per_device_train_batch_size, pin_memory=True)
@@ -177,7 +177,7 @@ def train(tokenized_datasets, model, tokenizer, training_args, data_collator, op
 **run_training_monitor:** monitor the training process while save the model.
 
 ```diff
-+ the parameters is defined and does not need any modification
++# the parameters is defined and does not need any modification
 @dataclass
 class TrainingMonitorArguments(BaseTrainingArguments):
     """
@@ -217,7 +217,7 @@ class TrainingMonitorArguments(BaseTrainingArguments):
 ```
 
 ```diff
-+define the checkpoint handler to store the model, the only part that needs odification is the opmizer, just to make sure it is the same optimizer you use during the training
++#define the checkpoint handler to store the model, the only part that needs odification is the opmizer, just to make sure it is the same optimizer you use during the training
 class CheckpointHandler:
     def __init__(
         self,
@@ -235,7 +235,7 @@ class CheckpointHandler:
         self.model, _ = get_model(dataset_args)
         self.model = NetmindModel(self.model)
 
-+this part needs to be modified if you choose your own optimizer
++#this part needs to be modified if you choose your own optimizer
         no_decay = ["bias", "LayerNorm.weight"]
         optimizer_grouped_parameters = [
             {
@@ -260,7 +260,7 @@ class CheckpointHandler:
             )
         )
 
-+the rest would remain unchanged
++#the rest would remain unchanged
         scheduler = lambda opt: get_linear_schedule_with_warmup(
             opt, num_warmup_steps=training_args.warmup_steps, num_training_steps=training_args.total_steps
         )
@@ -304,7 +304,7 @@ class CheckpointHandler:
 ```
 
 ```diff
-+main function for monitor, remain unchanged
++#main function for monitor, remain unchanged
 if __name__ == "__main__":
     parser = HfArgumentParser((DatasetArguments, ModelTrainingArguments, TrainingMonitorArguments, OptimizerArguments, AveragerArguments))
     dataset_args, training_args, monitor_args, optimizer_args, averager_args = parser.parse_args_into_dataclasses()
@@ -393,7 +393,7 @@ if __name__ == "__main__":
 
 ```diff
 
-+this is data_collator for mlm model (BERT)
++#this is data_collator for mlm model (BERT)
 tokenized_datasets = get_data(dataset_args)
 
 +data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm_probability=0.15)

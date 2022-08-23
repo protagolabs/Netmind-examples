@@ -16,10 +16,12 @@ import matplotlib.pyplot as plt
 from model import get_model
 from data import get_data
 from optimizer import get_optimizer
-from trainer_custom import train
+from trainer import train
 import logging
 from arguments import setup_args
 tqdm.pandas()
+
+from NetmindMixins.Netmind import nmp, NetmindDistributedModel, NetmindOptimizer
 
 
 #logger = logging.getLogger(__name__)
@@ -32,7 +34,7 @@ def main(args):
 
     #set up distributed backend
     torch.manual_seed(0)
-    dist.init_process_group(backend='nccl')
+    nmp.init()
 
     dateset_sampler = DistributedSampler(dataset)
     data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm_probability=0.15)
@@ -45,18 +47,21 @@ def main(args):
     print('setup gpu')
     model.to(device)
     # wrap the model
-    ddp_model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank], output_device=args.local_rank)
+    ddp_model = NetmindDistributedModel(
+        torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank], output_device=args.local_rank)
+    )
     
     
     # Prepare optimizer
-    optimizer = get_optimizer(ddp_model,args)    
+    optimizer = NetmindOptimizer(get_optimizer(ddp_model,args))   
     # start train
+    nmp.init_train_bar(total_epoch=args.num_train_epochs, step_per_epoch=len(dataloader))
     train(dataloader, ddp_model, optimizer, args, device)
 
     
 if __name__ == '__main__':
 
+
     args = setup_args()
-
-
     main(args)
+    nmp.finish_training()
