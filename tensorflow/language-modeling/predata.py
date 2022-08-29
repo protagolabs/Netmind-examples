@@ -4,22 +4,24 @@ from transformers import AutoTokenizer
 
 # data_args
 max_seq_length=512 # 1024? 512?
-preprocessing_num_workers = 64 # check num of your cpu cores
+preprocessing_num_workers = 128 # check num of your cpu cores
 overwrite_cache = True
 tokenizer_name = "bert-base-uncased"
 model_name_or_path = None # for training from scratch
 
 # #### dataloader ####
 bookcorpus = datasets.load_dataset('bookcorpus')
-wikipedia = datasets.load_dataset('wikipedia','20220301.en')
-wikipedia = wikipedia.remove_columns('title')
+raw_datasets = bookcorpus['train'] # for the code testing, we use the bookcorpus dataset only.
 
-print(wikipedia)
-print(bookcorpus)
+# wikipedia = datasets.load_dataset('wikipedia','20220301.en')
+# wikipedia = wikipedia.remove_columns('title')
 
-raw_datasets = datasets.concatenate_datasets([bookcorpus['train'],wikipedia['train']])
-# raw_datasets = bookcorpus['train']
+# print(wikipedia)
+# print(bookcorpus)
+
+# raw_datasets = datasets.concatenate_datasets([bookcorpus['train'],wikipedia['train']])
 print(raw_datasets)
+
 
 
 if tokenizer_name:

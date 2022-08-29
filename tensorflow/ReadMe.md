@@ -22,7 +22,7 @@ conda update --force conda
 # install the tensorflow and some other deps
 * create netmind-tf env
 ```bash
-conda create --name netmind-tf python=3.9
+conda create --name netmind-tf python=3.8
 ```
 * load enviroment
 ```bash
@@ -53,6 +53,6 @@ conda activate netmind-tf
 ```
 * install tensorflow-gpu
 ```bash
-pip install tensorflow-gpu
+pip install tensorflow-gpu==2.9.1
 ```
 #
