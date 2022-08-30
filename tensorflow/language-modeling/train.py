@@ -42,11 +42,11 @@ if __name__ == '__main__':
     output_dir = "./recent_saved_model"
     is_xla = False
 
+    
+
+
+
     strategy = tf.distribute.MirroredStrategy()
-
-
-
-
 
     #### you can save/load the preprocessed data here ###
 
