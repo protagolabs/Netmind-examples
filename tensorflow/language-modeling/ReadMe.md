@@ -33,13 +33,18 @@ python train.py
         "192.168.1.16" is the ip on my single machine, if you have different gpus on different machines, please use the correct ones.
 
     2. modify your code and adopt to the netmind-mixin as follows (you can compare the train.py with train_netmind.py for more details):
-        * ![add library]("imgs/netmind_00.jpg")
+        * add library
+            ![add library](imgs/netmind_00.jpg)
 
         * add environment
+            ![add environment](imgs/netmind_01.jpg)
 
-        * change the strategy
+        * change the distributed strategy
+            ![change the distributed strategy](imgs/netmind_02.jpg)
 
         * change the tf dataset loading
+            ![change the tf dataset loading](imgs/netmind_03.jpg)
+        
 
 
 
