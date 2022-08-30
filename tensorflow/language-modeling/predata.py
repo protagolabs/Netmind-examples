@@ -93,4 +93,4 @@ tokenized_datasets = tokenized_datasets.map(
 )
 
 
-tokenized_datasets.save_to_disk("./data_mlm")
+tokenized_datasets.save_to_disk("./data_mlm") # define the save path 
