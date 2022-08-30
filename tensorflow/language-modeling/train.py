@@ -15,6 +15,14 @@ logger = logging.getLogger(__name__)
 
 if __name__ == '__main__':
 
+
+
+
+
+
+
+
+
     # data_args
     max_seq_length = 512  
     preprocessing_num_workers = 128
@@ -35,6 +43,10 @@ if __name__ == '__main__':
     is_xla = False
 
     strategy = tf.distribute.MirroredStrategy()
+
+
+
+
 
     #### you can save/load the preprocessed data here ###
 
