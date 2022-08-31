@@ -8,10 +8,21 @@ import os
 
 import json
 import config as c
-from NetmindMixins.Netmind import nmp, NetmindDistributedModel, NetmindOptimizer
+from NetmindMixins.Netmind import TensorflowTrainerCallback
 
+from arguments import setup_args
+
+args = setup_args()
 
 logger = logging.getLogger(__name__)
+
+
+class SavePretrainedCallback(TensorflowTrainerCallback):
+    # Hugging Face models have a save_pretrained() method that saves both the weights and the necessary
+    # metadata to allow them to be loaded as a pretrained model in future. This is a simple Keras callback
+    # that saves the model with this method after each epoch.
+    def __init__(self, batches_per_epoch, args=args):
+        super().__init__(batches_per_epoch, args)
 
 if __name__ == '__main__':
     from tensorflow.python.client import device_lib
@@ -34,7 +45,6 @@ if __name__ == '__main__':
 
 
     per_device_train_batch_size = 8
-    num_train_epochs = 5
     learning_rate = 0.0001
     warmup_proportion = 0.15
     mlm_probability = 0.1
@@ -50,7 +60,7 @@ if __name__ == '__main__':
 
     #### you can save/load the preprocessed data here ###
 
-    train_dataset = datasets.load_from_disk("./data_mlm")
+    train_dataset = datasets.load_from_disk(args.data)
 
     print(train_dataset)
     # region Load pretrained model and tokenizer
@@ -129,7 +139,7 @@ if __name__ == '__main__':
         # endregion
 
         # region Optimizer and loss
-        num_train_steps = len(tf_train_dataset) * int(num_train_epochs)
+        num_train_steps = len(tf_train_dataset) * int(args.num_train_epochs)
 
         if warmup_proportion > 0:
             num_warmup_steps = int(num_train_steps * warmup_proportion)
@@ -165,7 +175,7 @@ if __name__ == '__main__':
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir, 
                                                         histogram_freq=1,
                                                         profile_batch=0,
-                                                        update_freq=10)
+                                                        update_freq=args.save_steps)
 
     checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(filepath=os.path.join(logdir, 'ckpt'),
                                                             monitor='train_loss',
@@ -174,12 +184,14 @@ if __name__ == '__main__':
                                                             save_weights_only=False
                                                             )                                                    
 
-    callbacks = [tensorboard_callback, checkpoint_callback]
+    netmind_callback = SavePretrainedCallback(batches_per_epoch=len(tf_train_dataset))
+
+    callbacks = [tensorboard_callback, checkpoint_callback, netmind_callback]
 
     # region Training and validation
     logger.info("***** Running training *****")
     logger.info(f"  Num examples = {len(train_dataset)}")
-    logger.info(f"  Num Epochs = {num_train_epochs}")
+    logger.info(f"  Num Epochs = {args.num_train_epochs}")
     logger.info(f"  Instantaneous batch size per device = {per_device_train_batch_size}")
     logger.info(f"  Total train batch size = {per_device_train_batch_size * n_workers}")
 
@@ -188,7 +200,7 @@ if __name__ == '__main__':
     history = model.fit(
         tf_train_dataset,
         # validation_data=tf_eval_dataset,
-        epochs=int(num_train_epochs),
+        epochs=int(args.num_train_epochs),
         steps_per_epoch=len(tf_train_dataset),
         callbacks=callbacks,
     )
