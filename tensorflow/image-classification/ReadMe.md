@@ -1,21 +1,19 @@
-## install datasets and transformers from huggingface
+## prepare the imagenet dataset
 
+* Please access the download the imagenet-ilsvrc2012 dataset from [here](https://image-net.org/index.php).
+
+* The Training images (Task 1 & 2) is about 138GB and the  Validation images (all tasks) is about 6.3GB.
+
+* unzip the datasets by using the following script in the download directory
 ```bash
-pip install transformers==4.21.2
-pip install tokenizers==0.12.1
-pip install datasets==2.4.0
+bash extract_ILSVRC.sh
 ```
 
 ## local
 
-* data preparing
-```bash
-python predata.py
-```
-
 * model training
 ```bash
-python train.py --data="./data_mlm"
+python train.py --data="/home/xing/datasets/imagenet1k/train" --val_data="/home/xing/datasets/imagenet1k/val"
 ```
 
 ## netmind platform
