@@ -7,6 +7,8 @@ import logging
 import json
 import config as c
 from NetmindMixins.Netmind import TensorflowTrainerCallback
+
+
 args = setup_args()
 
 logger = logging.getLogger(__name__)
@@ -64,13 +66,6 @@ if __name__ == '__main__':
 
     with multi_worker_mirrored_strategy.scope():
 
-        # model = ResNet(50)
-        # model = ResNetTypeII(layer_params=[3, 4, 6, 3], input_shape=c.input_shape)
-
-        # model.build(input_shape=(None,) + c.input_shape)
-        
-        # model.summary()
-        # print('initial l2 loss:{:.4f}'.format(l2_loss(model)))
 
         inputs = tf.keras.Input(shape=args.input_shape)
 
@@ -84,10 +79,10 @@ if __name__ == '__main__':
 
 
 
-        optimizer = tf.keras.optimizers.SGD(args.initial_learning_rate *  n_workers)
+        # optimizer = tf.keras.optimizers.SGD(args.initial_learning_rate *  n_workers)
 
         model.compile(
-            optimizer=optimizer,
+            optimizer=tf.keras.optimizers.SGD(args.initial_learning_rate *  n_workers),
             loss=tf.losses.SparseCategoricalCrossentropy(from_logits=False),
             metrics=tf.keras.metrics.SparseCategoricalAccuracy()
         )
@@ -126,7 +121,7 @@ if __name__ == '__main__':
 
     netmind_callback = SavePretrainedCallback(batches_per_epoch=(train_num  // global_batch_size))
 
-    callbacks = [tensorboard_callback, model_callback, netmind_callback]
+    all_callbacks = [tensorboard_callback, model_callback, netmind_callback]
 
     history = model.fit(
         train_data_iterator,
@@ -134,5 +129,5 @@ if __name__ == '__main__':
         steps_per_epoch= train_num  // global_batch_size , 
         validation_steps= test_num // global_batch_size ,
         epochs=args.epoch_num,
-        callbacks=callbacks
+        callbacks=all_callbacks
     )
