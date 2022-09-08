@@ -4,6 +4,7 @@ import config as c
 from arguments import setup_args
 import logging
 
+
 args = setup_args()
 
 logger = logging.getLogger(__name__)
@@ -48,13 +49,6 @@ if __name__ == '__main__':
 
     with mirrored_strategy.scope():
 
-        # model = ResNet(50)
-        # model = ResNetTypeII(layer_params=[3, 4, 6, 3], input_shape=c.input_shape)
-
-        # model.build(input_shape=(None,) + c.input_shape)
-        
-        # model.summary()
-        # print('initial l2 loss:{:.4f}'.format(l2_loss(model)))
 
         inputs = tf.keras.Input(shape=args.input_shape)
 
@@ -75,8 +69,6 @@ if __name__ == '__main__':
             loss=tf.losses.SparseCategoricalCrossentropy(from_logits=False),
             metrics=tf.keras.metrics.SparseCategoricalAccuracy()
         )
-
-
     
 # Next, we create the input dataset and call `tf.distribute.Strategy.experimental_distribute_dataset` to distribute the dataset based on the strategy.
 

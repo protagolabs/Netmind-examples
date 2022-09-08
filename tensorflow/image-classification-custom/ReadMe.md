@@ -1,5 +1,4 @@
-# Train Resnet50 on Imagenet with Trainer
-
+# Train Resnet50 on Imagenet without Trainer
 ## prepare the imagenet dataset
 
 * Please access the download the imagenet-ilsvrc2012 dataset from [here](https://image-net.org/index.php).
