@@ -34,16 +34,16 @@ python train.py --data="/home/xing/datasets/imagenet1k/train" --val_data="/home/
     2. modify your code and adopt to the netmind-mixin as follows (you can compare the train.py with train_netmind.py for more details):
 
         * add netmind class
-            ![add netmind callbacks](imgs/netmind_01.jpg)
+            ![add netmind callbacks](imgs/Screenshot-2022-09-12-103929.jpg)
 
-        * add environment
-            ![add environment](imgs/netmind_02.jpg)
+        * add environment and change the distributed strategy
+            ![add environment](imgs/Screenshot-2022-09-12-104011.jpg)
 
-        * change the distributed strategy
-            ![change the distributed strategy](imgs/netmind_03.jpg)
+        * model init
+            ![model init](imgs/Screenshot-2022-09-12-104420.jpg)
 
-        * add  the netmind callbacks 
-            ![change the tf dataset loading](imgs/netmind_06.jpg)
+        * training loop changes
+            ![training loop changes](imgs/Screenshot-2022-09-12-104918.jpg)
         
 
 
