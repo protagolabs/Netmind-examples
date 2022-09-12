@@ -26,36 +26,36 @@ if __name__ == '__main__':
 
     global_batch_size = args.batch_size *  num_gpus
 
-
-    train_ds = tf.keras.preprocessing.image_dataset_from_directory(
-        args.data,
-        validation_split=0.2,
-        subset="training",
-        seed=1337,
-        image_size=args.input_shape[:2],
-        batch_size=global_batch_size,
-    )
-    val_ds = tf.keras.preprocessing.image_dataset_from_directory(
-        args.data,
-        validation_split=0.2,
-        subset="validation",
-        seed=1337,
-        image_size=args.input_shape[:2],
-        batch_size=global_batch_size,
-    )
-
+    #  you can use smaller data for code checking like food-101 dataset
     # train_ds = tf.keras.preprocessing.image_dataset_from_directory(
     #     args.data,
-    #     seed=args.seed,
+    #     validation_split=0.2,
+    #     subset="training",
+    #     seed=1337,
     #     image_size=args.input_shape[:2],
     #     batch_size=global_batch_size,
     # )
     # val_ds = tf.keras.preprocessing.image_dataset_from_directory(
-    #     args.val_data,
-    #     seed=args.seed,
+    #     args.data,
+    #     validation_split=0.2,
+    #     subset="validation",
+    #     seed=1337,
     #     image_size=args.input_shape[:2],
     #     batch_size=global_batch_size,
     # )
+
+    train_ds = tf.keras.preprocessing.image_dataset_from_directory(
+        args.data,
+        seed=args.seed,
+        image_size=args.input_shape[:2],
+        batch_size=global_batch_size,
+    )
+    val_ds = tf.keras.preprocessing.image_dataset_from_directory(
+        args.val_data,
+        seed=args.seed,
+        image_size=args.input_shape[:2],
+        batch_size=global_batch_size,
+    )
 
     # for x, y in train_ds.take(1):
     #     print(x.shape, y)
@@ -164,7 +164,6 @@ if __name__ == '__main__':
             total_loss +=loss_tmp
             num_batches += 1
 
-            # print(loss_tmp)
         train_loss = total_loss / num_batches
 
         # TEST LOOP
