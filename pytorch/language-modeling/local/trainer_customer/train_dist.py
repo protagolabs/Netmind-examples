@@ -9,8 +9,6 @@ from torch.utils.data import Dataset, DataLoader, IterableDataset
 from torch.utils.data.distributed import DistributedSampler
 import torch.distributed as dist
 import pandas as pd
-from transformers import AdamW
-from transformers import HfArgumentParser
 from transformers import AutoModelForCausalLM, DataCollatorForLanguageModeling
 import matplotlib.pyplot as plt
 from model import get_model
