@@ -52,4 +52,4 @@ def train(tokenizer, data_collator, tokenized_datasets, model, optimizer, args):
             Path(args.output_dir).glob("checkpoint*"), default=None, key=os.path.getctime
         )
 
-        trainer.train(model_path=latest_checkpoint_dir)
+        trainer.train(resume_from_checkpoint=latest_checkpoint_dir)
