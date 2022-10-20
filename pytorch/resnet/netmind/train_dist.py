@@ -91,7 +91,7 @@ def main(args):
         # save model
         save_checkpoint({
             'epoch': epoch + 1,
-            'arch': args.arch,
+            'model_name_or_path': args.model_name_or_path,
             'best_acc1': best_acc1,
         }, is_best)
 
