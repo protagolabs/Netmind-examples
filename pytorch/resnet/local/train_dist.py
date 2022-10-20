@@ -35,6 +35,8 @@ def main(args):
     model.to(device)
     # wrap the model
     model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank], output_device=args.local_rank)
+    # wait until data has loaded
+    dist.barrier()
     
 
     train_loader = torch.utils.data.DataLoader(
@@ -58,6 +60,7 @@ def main(args):
         validate(val_loader, model, criterion, args)
         return
 
+    best_acc1 = 0
     for epoch in range(args.epochs):
         
         train_sampler.set_epoch(epoch)
@@ -76,7 +79,7 @@ def main(args):
         # save model
         save_checkpoint({
             'epoch': epoch + 1,
-            'arch': args.arch,
+            'model_name_or_path': args.model_name_or_path,
             'state_dict': model.state_dict(),
             'best_acc1': best_acc1,
             'optimizer' : optimizer.state_dict(),
