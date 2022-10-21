@@ -26,7 +26,6 @@ from tqdm import tqdm
 from hivemind import DHT, Float16Compression, Optimizer, get_dht_time
 from hivemind.utils.logging import get_logger, use_hivemind_log_handler
 from hivemind.utils.networking import log_visible_maddrs
-from NetmindMixins.Netmind import htp
 
 import utils
 from arguments import (
@@ -39,6 +38,7 @@ from arguments import (
 
 use_hivemind_log_handler("in_root_logger")
 logger = get_logger(__name__)
+
 
 def main():
     parser = HfArgumentParser(
@@ -67,12 +67,13 @@ def main():
     data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm_probability=0.15)
 
     # get optimizer
-    optimizer, collaborative_call, local_public_key = get_optimizer(model, training_args, collaboration_args, averager_args, tracker_args)
+    optimizer, collaborative_call, local_public_key = get_optimizer(model, training_args, collaboration_args,
+                                                                    averager_args, tracker_args)
 
     # start training
-    train(tokenized_datasets, model, tokenizer, training_args, data_collator, optimizer, collaborative_call, local_public_key)
-    
+    train(tokenized_datasets, model, tokenizer, training_args, data_collator, optimizer, collaborative_call,
+          local_public_key)
+
 
 if __name__ == "__main__":
     main()
-    htp.on_train_end()
