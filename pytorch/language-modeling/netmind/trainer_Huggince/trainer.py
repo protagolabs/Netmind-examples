@@ -62,8 +62,8 @@ def train(tokenizer, data_collator, tokenized_datasets, model, optimizer, args):
         optimizers=(optimizer, scheduler),
         callbacks=[CustomTrainerCallback],
     )
-    trainer.remove_callback(transformers.trainer_callback.PrinterCallback)
-    trainer.remove_callback(transformers.trainer_callback.ProgressCallback)
+    #rainer.remove_callback(transformers.trainer_callback.PrinterCallback)
+    #trainer.remove_callback(transformers.trainer_callback.ProgressCallback)
     
     # Training
     if args.do_train:

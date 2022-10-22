@@ -6,9 +6,9 @@ import logging
 from datetime import datetime
 import os
 
-import json
-import config as c
-from NetmindMixins.Netmind import TensorflowTrainerCallback
+
+
+
 
 from arguments import setup_args
 
@@ -16,23 +16,15 @@ args = setup_args()
 
 logger = logging.getLogger(__name__)
 
-
-class SavePretrainedCallback(TensorflowTrainerCallback):
-    # Hugging Face models have a save_pretrained() method that saves both the weights and the necessary
-    # metadata to allow them to be loaded as a pretrained model in future. This is a simple Keras callback
-    # that saves the model with this method after each epoch.
-    def __init__(self, batches_per_epoch, args=args):
-        super().__init__(batches_per_epoch, args)
-
 if __name__ == '__main__':
-    from tensorflow.python.client import device_lib
 
-    logger.info(device_lib.list_local_devices())
-    if not os.getenv('TF_CONFIG'):
-        c.tf_config['task']['index'] = int(os.getenv('INDEX'))
-        os.environ['TF_CONFIG'] = json.dumps(c.tf_config)
 
-    
+
+
+
+
+
+
 
     # data_args
     max_seq_length = 512  
@@ -52,11 +44,11 @@ if __name__ == '__main__':
     output_dir = "./recent_saved_model"
     is_xla = False
 
-    n_workers = len(json.loads(os.environ['TF_CONFIG']).get('cluster', {}).get('worker'))
-    logger.info(f'c.tf_config : {c.tf_config}')
-    global_batch_size = per_device_train_batch_size * n_workers
+    
 
-    strategy = tf.distribute.MultiWorkerMirroredStrategy()
+
+
+    strategy = tf.distribute.MirroredStrategy()
 
     #### you can save/load the preprocessed data here ###
 
@@ -121,7 +113,7 @@ if __name__ == '__main__':
         # endregion
 
         # region TF Dataset preparation 
-
+        num_replicas = strategy.num_replicas_in_sync
 
         data_collator = DataCollatorForLanguageModeling(
             tokenizer=tokenizer, mlm_probability=mlm_probability, return_tensors="tf"
@@ -132,7 +124,7 @@ if __name__ == '__main__':
         tf_train_dataset = model.prepare_tf_dataset(
                 train_dataset,
                 shuffle=True,
-                batch_size=global_batch_size,
+                batch_size=num_replicas * per_device_train_batch_size,
                 collate_fn=data_collator,
             ).with_options(options)
 
@@ -184,16 +176,14 @@ if __name__ == '__main__':
                                                             save_weights_only=False
                                                             )                                                    
 
-    netmind_callback = SavePretrainedCallback(batches_per_epoch=len(tf_train_dataset))
-
-    callbacks = [tensorboard_callback, checkpoint_callback, netmind_callback]
+    callbacks = [tensorboard_callback, checkpoint_callback]
 
     # region Training and validation
     logger.info("***** Running training *****")
     logger.info(f"  Num examples = {len(train_dataset)}")
     logger.info(f"  Num Epochs = {args.num_train_epochs}")
     logger.info(f"  Instantaneous batch size per device = {per_device_train_batch_size}")
-    logger.info(f"  Total train batch size = {per_device_train_batch_size * n_workers}")
+    logger.info(f"  Total train batch size = {per_device_train_batch_size * num_replicas}")
 
 
 
