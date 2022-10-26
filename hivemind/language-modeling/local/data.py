@@ -11,6 +11,6 @@ tqdm.pandas()
 
 def get_data(args):
 
-    dataset = load_from_disk(args.dataset_path)
+    dataset = load_from_disk(args.dataset_path + "/albert_tokenized_wikitext")
     
     return dataset

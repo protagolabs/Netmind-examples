@@ -61,7 +61,7 @@ def main(args):
         return
 
     best_acc1 = 0
-    for epoch in range(args.epochs):
+    for epoch in range(args.num_train_epochs):
         
         train_sampler.set_epoch(epoch)
         adjust_learning_rate(optimizer, epoch, args)

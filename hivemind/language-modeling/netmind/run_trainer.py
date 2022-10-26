@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
 import os
+platform = os.environ['PLATFORM']
+print(f'platform : {platform}')
+
 import pickle
 from dataclasses import asdict
 from pathlib import Path

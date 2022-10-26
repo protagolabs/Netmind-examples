@@ -105,6 +105,7 @@ def train(dataloader, model, optimizer, args, device):
                 model_to_save = model.module if hasattr(model, 'module') else model
                 model_to_save.save_pretrained(model_save_path)
                 logger.info("Saving model checkpoint to %s", model_save_path)
+
             
     # empty cache
     torch.cuda.empty_cache()

@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
     n_workers = len(json.loads(os.environ['TF_CONFIG']).get('cluster', {}).get('worker'))
     logger.info(f'c.tf_config : {c.tf_config}')
-    global_batch_size = args.batch_size * n_workers
+    global_batch_size = args.per_device_train_batch_size * n_workers
 
     mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
 
@@ -163,7 +163,7 @@ if __name__ == '__main__':
 
     # epochs_trained = nmp.cur_epoch
 
-    for epoch in range(args.epoch_num):
+    for epoch in range(args.num_train_epochs):
         # TRAIN LOOP
         total_loss = 0.0
         num_batches = 0
@@ -174,6 +174,8 @@ if __name__ == '__main__':
 
         train_loss = total_loss / num_batches
         # netmind relatived
+        print(f'train_accuracy : {test_accuracy} , {type(test_accuracy)}')
+        print(f'test_loss : {test_loss} , {type(test_loss)}')
 
         # TEST LOOP
         for x in tqdm(test_data_iterator):
@@ -191,9 +193,7 @@ if __name__ == '__main__':
 
 
 
-
-
         test_loss.reset_states()
         train_accuracy.reset_states()
         test_accuracy.reset_states()
-
+    print(f'program exited.')

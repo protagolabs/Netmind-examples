@@ -33,3 +33,5 @@ class ModelTrainingArguments(TrainingArguments):
 
     output_dir: str = "outputs"
     max_steps: int = -1  # meant the total training steps
+    disable_tqdm: bool = True
+    report_to: str = "none"  # let netmind implement w&b monitor
