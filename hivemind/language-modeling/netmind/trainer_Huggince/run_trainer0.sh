@@ -1,4 +1,4 @@
-IP=/ip4/192.168.1.11/tcp/38383/p2p/Qmc2gmwSnGQRy2eXWJ1ntq5SUv1HxqaUYiNbNx29euUTu5
+IP=/ip4/192.168.0.149/tcp/38383/p2p/Qmc2gmwSnGQRy2eXWJ1ntq5SUv1HxqaUYiNbNx29euUTu5
 
 WANDB_DISABLED=true CUDA_VISIBLE_DEVICES=0 python run_trainer.py \
 --experiment_prefix bert_experiment  \
