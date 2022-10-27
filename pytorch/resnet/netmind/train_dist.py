@@ -53,7 +53,7 @@ def main(args):
     criterion = nn.CrossEntropyLoss()
 
     optimizer = NetmindOptimizer(
-        torch.optim.SGD(model.parameters(), args.lr,
+        torch.optim.SGD(model.parameters(), args.learning_rate,
                                 momentum=args.momentum,
                                 weight_decay=args.weight_decay)
     )
@@ -73,7 +73,7 @@ def main(args):
         state = torch.load(checkpoint)
         best_acc1 = state["best_acc1"]
 
-    for epoch in range(nmp.cur_epoch, args.epochs):
+    for epoch in range(nmp.cur_epoch, args.num_train_epochs):
     
         train_sampler.set_epoch(epoch)
         adjust_learning_rate(optimizer, epoch, args)
@@ -108,7 +108,7 @@ def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
 
 def adjust_learning_rate(optimizer, epoch, args):
     """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
-    lr = args.lr * (0.1 ** (epoch // 30))
+    lr = args.learning_rate * (0.1 ** (epoch // 30))
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
 

@@ -1,4 +1,3 @@
-from transformers import AdamW
 from transformers import AutoTokenizer, AutoConfig, AutoModelForMaskedLM
 import os
 
