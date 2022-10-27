@@ -122,7 +122,7 @@ class DatasetArguments:
 
 @dataclass
 class ModelTrainingArguments(TrainingArguments):
-    model_name_or_path: str = "resnet50"
+    arch: str = "resnet50"
     pretrained: bool = "False"
 
     dataloader_num_workers: int = 4
