@@ -10,12 +10,13 @@ import torch.nn.parallel
 import torch.backends.cudnn as cudnn
 import torch.distributed as dist
 import torch.optim
-import torch.utils.data
-import torch.utils.data.distributed
+from torch.utils.data import DataLoader
+from torch.utils.data.distributed import DistributedSampler
 from argument import setup_args
 from model import get_model
 from data import get_data
-from trainer import train, validate
+from optimizer import get_optimizer
+from trainer import train
 
 
 
@@ -27,7 +28,17 @@ def main(args):
 
     torch.manual_seed(0)
     dist.init_process_group(backend='nccl')
-    train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
+
+    train_sampler = DistributedSampler(train_dataset)
+    train_loader = DataLoader(
+        train_dataset, batch_size=args.per_device_train_batch_size, shuffle=(train_sampler is None),
+        num_workers=args.workers, pin_memory=True, sampler=train_sampler)
+    
+    val_loader = DataLoader(
+        val_datset,
+        batch_size=args.per_device_train_batch_size, shuffle=False,
+        num_workers=args.workers, pin_memory=True)
+
     # setup device
     device = torch.device("cuda:{}".format(args.local_rank))
     # GPU
@@ -35,70 +46,21 @@ def main(args):
     model.to(device)
     # wrap the model
     model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank], output_device=args.local_rank)
-    # wait until data has loaded
-    dist.barrier()
-    
 
-    train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=args.per_device_train_batch_size, shuffle=(train_sampler is None),
-        num_workers=args.workers, pin_memory=True, sampler=train_sampler)
+    # wait until data/model has loaded
+    dist.barrier()
+
+    # Prepare optimizer
+    optimizer = get_optimizer(model,args)
     
-    val_loader = torch.utils.data.DataLoader(
-        val_datset,
-        batch_size=args.per_device_train_batch_size, shuffle=False,
-        num_workers=args.workers, pin_memory=True)
+    
     
     # define loss function (criterion) and optimizer
     criterion = nn.CrossEntropyLoss()
-
-    optimizer = torch.optim.SGD(model.parameters(), args.learning_rate,
-                                momentum=args.momentum,
-                                weight_decay=args.weight_decay)
     cudnn.benchmark = True
 
-    if args.evaluate:
-        validate(val_loader, model, criterion, args)
-        return
-
-    best_acc1 = 0
-    for epoch in range(args.num_train_epochs):
-        
-        train_sampler.set_epoch(epoch)
-        adjust_learning_rate(optimizer, epoch, args)
-
-        # train for one epoch
-        train(train_loader, model, criterion, optimizer, epoch, args, device)
-
-        # evaluate on validation set
-        acc1 = validate(val_loader, model, criterion, args, device)
-
-        # remember best acc@1 and save checkpoint
-        is_best = acc1 > best_acc1
-        best_acc1 = max(acc1, best_acc1)
-
-        # save model
-        save_checkpoint({
-            'epoch': epoch + 1,
-            'model_name_or_path': args.model_name_or_path,
-            'state_dict': model.state_dict(),
-            'best_acc1': best_acc1,
-            'optimizer' : optimizer.state_dict(),
-        }, is_best)
-
-
-
-
-def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
-    torch.save(state, filename)
-    if is_best:
-        shutil.copyfile(filename, 'model_best.pth.tar')
-
-
-def adjust_learning_rate(optimizer, epoch, args):
-    """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
-    lr = args.learning_rate * (0.1 ** (epoch // 30))
-    for param_group in optimizer.param_groups:
-        param_group['lr'] = lr
+    # start train
+    train(train_loader, train_sampler, val_loader, model, criterion, optimizer, args, device)
 
     
 if __name__ == '__main__':
