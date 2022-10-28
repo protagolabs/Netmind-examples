@@ -44,7 +44,7 @@ from hivemind.utils.logging import get_logger, use_hivemind_log_handler
 from model import get_model
 from data import get_data
 from optimizer import get_optimizer
-from train import train, validate, adjust_learning_rate
+from trainer import train, validate, adjust_learning_rate
 
 import utils
 from arguments import (

@@ -45,7 +45,7 @@ from NetmindMixins.Netmind import htp
 from model import get_model
 from data import get_data
 from optimizer import get_optimizer
-from train import train, validate, adjust_learning_rate
+from trainer import train, validate, adjust_learning_rate
 
 import utils
 from arguments import (
