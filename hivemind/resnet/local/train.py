@@ -59,9 +59,6 @@ def train(train_loader, model, criterion, optimizer, epoch, collaborative_call,d
         collaborative_call.on_step_end(loss=loss.item())
 
 
-        # display the accuracy
-        #progress.display(i)
-
 def validate(val_loader, model, criterion, device):
     batch_time = AverageMeter('Time', ':6.3f')
     losses = AverageMeter('Loss', ':.4e')
