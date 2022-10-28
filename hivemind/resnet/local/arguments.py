@@ -124,7 +124,8 @@ class DatasetArguments:
 class ModelTrainingArguments(TrainingArguments):
     arch: str = "resnet50"
     pretrained: bool = "False"
-
+    
+    num_train_epochs: int = 90
     dataloader_num_workers: int = 4
     per_device_train_batch_size: int = 16
     per_device_eval_batch_size: int = 4

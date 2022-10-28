@@ -1,4 +1,4 @@
-IP=/ip4/192.168.1.152/tcp/41393/p2p/Qmdqa4E7P7Dz7P4CzSRMZg9z3eaJKGdAH5VEWytXGo1ftG
+IP=/ip4/192.168.1.152/tcp/45037/p2p/QmThG6DwixdaA22Xw3KNbX3psUqbFYYhnSppkUV1yLZLav
 
 WANDB_DISABLED=true CUDA_VISIBLE_DEVICES=0 python run_trainer.py \
 --experiment_prefix resnet_experiment \
