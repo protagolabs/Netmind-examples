@@ -45,7 +45,7 @@ from NetmindMixins.Netmind import htp
 from model import get_model
 from data import get_data
 from optimizer import get_optimizer
-from train import train, validate, adjust_learning_rate
+from trainer import train, validate, adjust_learning_rate
 
 import utils
 from arguments import (
@@ -100,23 +100,10 @@ def main():
     # define optimzier and callback
     optimizer, collaborative_call = get_optimizer(model, training_args, collaboration_args, averager_args, tracker_args)
 
-    num_update_steps_per_epoch = len(train_loader) // training_args.gradient_accumulation_steps
-    num_update_steps_per_epoch = max(num_update_steps_per_epoch, 1)
-    if training_args.max_steps > 0:
-        htp.set_max_steps(training_args.max_steps)
-    else:
-        htp.set_max_steps(math.ceil(training_args.num_train_epochs * num_update_steps_per_epoch))
-    htp.set_total_train_batch_size(training_args.train_batch_size * training_args.gradient_accumulation_steps * training_args.world_size)
+    
+    train(train_loader, val_loader, model, criterion, optimizer, training_args, collaborative_call,device)
 
-    best_acc1 = 0
-    acc1_lst = []
-    for epoch in range(90):
-        adjust_learning_rate(optimizer, epoch, training_args)     
-        # train for one epoch
-        train(train_loader, model, criterion, optimizer, epoch, collaborative_call, device)
-
-        # evaluate on validation set
-        acc1, acc5 = validate(val_loader, model, criterion, device)
+        
 
 if __name__ == "__main__":
     main()

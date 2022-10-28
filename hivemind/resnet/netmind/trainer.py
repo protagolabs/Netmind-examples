@@ -6,6 +6,7 @@ import torch
 from torch.nn.utils import clip_grad_norm_
 import os
 import random
+import math
 import shutil
 import time
 import torch
@@ -34,39 +35,48 @@ class AverageMeter(object):
         fmtstr = '{name} {val' + self.fmt + '} ({avg' + self.fmt + '})'
         return fmtstr.format(**self.__dict__)
 
-def train(train_loader, model, criterion, optimizer, epoch, collaborative_call,device):
+def train(train_loader, val_loader, model, criterion, optimizer, training_args, collaborative_call,device):
     max_clip_norm = 1.0
     # switch to train mode
     model.train()
 
-    end = time.time()
-    for i, (images, target) in enumerate(train_loader):
-        htp.on_step_begin()
-        
-        images = images.cuda(device, non_blocking=True)
-        target = target.cuda(device, non_blocking=True)
+    num_update_steps_per_epoch = len(train_loader) // training_args.gradient_accumulation_steps
+    num_update_steps_per_epoch = max(num_update_steps_per_epoch, 1)
+    if training_args.max_steps > 0:
+        htp.set_max_steps(training_args.max_steps)
+    else:
+        htp.set_max_steps(math.ceil(training_args.num_train_epochs * num_update_steps_per_epoch))
+    htp.set_total_train_batch_size(training_args.train_batch_size * training_args.gradient_accumulation_steps * training_args.world_size)
 
-        # compute output
-        output = model(images)
-        loss = criterion(output, target)
+    for epoch in range(training_args.num_train_epochs):
+        adjust_learning_rate(optimizer, epoch, training_args)
+        for i, (images, target) in enumerate(train_loader):
+            htp.on_step_begin()
+            
+            images = images.cuda(device, non_blocking=True)
+            target = target.cuda(device, non_blocking=True)
 
-        # compute gradient and do SGD step
-        optimizer.zero_grad()
-        loss.backward()
-        # gradient clip
-        clip_grad_norm_(model.parameters(), max_clip_norm)
-        optimizer.step()
+            # compute output
+            output = model(images)
+            loss = criterion(output, target)
 
-        # at the end of the step: on_step_end
-        collaborative_call.on_step_end(loss=loss.item())
-        if htp.on_step_end():
-            # shutdown optimizer.tracker
-            if hasattr(optimizer, "tracker"):
-                optimizer.tracker.shutdown()
-            sys.exit(0)
+            # compute gradient and do SGD step
+            optimizer.zero_grad()
+            loss.backward()
+            # gradient clip
+            clip_grad_norm_(model.parameters(), max_clip_norm)
+            optimizer.step()
 
-        # display the accuracy
-        #progress.display(i)
+            # at the end of the step: on_step_end
+            collaborative_call.on_step_end(loss=loss.item())
+            if htp.on_step_end():
+                # shutdown optimizer.tracker
+                if hasattr(optimizer, "tracker"):
+                    optimizer.tracker.shutdown()
+                sys.exit(0)
+        # evaluate on validation set
+        acc1, acc5 = validate(val_loader, model, criterion, device)
+
 
 def validate(val_loader, model, criterion, device):
     batch_time = AverageMeter('Time', ':6.3f')
