@@ -10,12 +10,13 @@ import torch.nn.parallel
 import torch.backends.cudnn as cudnn
 import torch.distributed as dist
 import torch.optim
-import torch.utils.data
-import torch.utils.data.distributed
+from torch.utils.data import DataLoader
+from torch.utils.data.distributed import DistributedSampler
 from argument import setup_args
 from model import get_model
 from data import get_data
-from trainer import train, validate
+from optimizer import get_optimizer
+from trainer import train
 from NetmindMixins.Netmind import nmp, NetmindDistributedModel, NetmindOptimizer
 
 
@@ -28,7 +29,17 @@ def main(args):
     #set up distributed backend
     torch.manual_seed(0)
     nmp.init()
-    train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
+
+    train_sampler = DistributedSampler(train_dataset)
+    train_loader = DataLoader(
+        train_dataset, batch_size=args.per_device_train_batch_size, shuffle=(train_sampler is None),
+        num_workers=args.workers, pin_memory=True, sampler=train_sampler)
+    
+    val_loader = DataLoader(
+        val_datset,
+        batch_size=args.per_device_train_batch_size, shuffle=False,
+        num_workers=args.workers, pin_memory=True)
+
     # setup device
     device = torch.device("cuda:{}".format(args.local_rank))
     # GPU
@@ -40,77 +51,18 @@ def main(args):
     )
     dist.barrier()
 
-    train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=args.per_device_train_batch_size, shuffle=(train_sampler is None),
-        num_workers=args.workers, pin_memory=True, sampler=train_sampler)
-    
-    val_loader = torch.utils.data.DataLoader(
-        val_datset,
-        batch_size=args.per_device_train_batch_size, shuffle=False,
-        num_workers=args.workers, pin_memory=True)
-    
+    # Prepare optimizer
+    optimizer = NetmindOptimizer(get_optimizer(model,args))
+
     # define loss function (criterion) and optimizer
     criterion = nn.CrossEntropyLoss()
-
-    optimizer = NetmindOptimizer(
-        torch.optim.SGD(model.parameters(), args.lr,
-                                momentum=args.momentum,
-                                weight_decay=args.weight_decay)
-    )
-
     cudnn.benchmark = True
     
-    nmp.init_train_bar(total_epoch=args.epochs, step_per_epoch=len(train_loader))
-    nmp.init_eval_bar(total_epoch=args.epochs)
+    nmp.init_train_bar(total_epoch=args.num_train_epochs, step_per_epoch=len(train_loader))
+    nmp.init_eval_bar(total_epoch=args.num_train_epochs)
 
-    if args.evaluate:
-        validate(val_loader, model, criterion, args)
-        return
-
-    best_acc1 = 0
-    checkpoint = nmp.from_pretrained("checkpoint.pth.tar")
-    if checkpoint:
-        state = torch.load(checkpoint)
-        best_acc1 = state["best_acc1"]
-
-    for epoch in range(nmp.cur_epoch, args.epochs):
-    
-        train_sampler.set_epoch(epoch)
-        adjust_learning_rate(optimizer, epoch, args)
-
-        # train for one epoch
-        train(train_loader, model, criterion, optimizer, epoch, args, device)
-
-        # evaluate on validation set
-        acc1 = validate(val_loader, model, criterion, args, device)
-
-        # remember best acc@1 and save checkpoint
-        is_best = acc1 > best_acc1
-        best_acc1 = max(acc1, best_acc1)
-
-        # save model
-        save_checkpoint({
-            'epoch': epoch + 1,
-            'model_name_or_path': args.model_name_or_path,
-            'best_acc1': best_acc1,
-        }, is_best)
-
-
-
-
-def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
-   
-    torch.save(state, filename)
-    if is_best:
-        # shutil.copyfile(filename, 'model_best.pth.tar')
-        nmp.save_pretrained(extra_dir_or_files=filename)
-
-
-def adjust_learning_rate(optimizer, epoch, args):
-    """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
-    lr = args.lr * (0.1 ** (epoch // 30))
-    for param_group in optimizer.param_groups:
-        param_group['lr'] = lr
+    # start train
+    train(train_loader, train_sampler, val_loader, model, criterion, optimizer, args, device)
 
     
 if __name__ == '__main__':

@@ -11,54 +11,78 @@ import time
 import torch
 from NetmindMixins.Netmind import nmp
 
-def train(train_loader, model, criterion, optimizer, epoch, args, device):
-    batch_time = AverageMeter('Time', ':6.3f')
-    data_time = AverageMeter('Data', ':6.3f')
-    losses = AverageMeter('Loss', ':.4e')
-    top1 = AverageMeter('Acc@1', ':6.2f')
-    top5 = AverageMeter('Acc@5', ':6.2f')
-    progress = ProgressMeter(
-        len(train_loader),
-        [batch_time, data_time, losses, top1, top5],
-        prefix="Epoch: [{}]".format(epoch))
+def train(train_loader, train_sampler, val_loader, model, criterion, optimizer, args, device):
 
-    # switch to train mode
-    model.train()
+    
+    best_acc1 = 0
+    for epoch in range(nmp.cur_epoch, args.num_train_epochs):
+        # shuffle the training data at every epoch
+        train_sampler.set_epoch(epoch)
+        adjust_learning_rate(optimizer, epoch, args)
 
-    end = time.time()
-    for i, (images, target) in enumerate(train_loader):
-        if nmp.should_skip_step():
-            continue
-        # measure data loading time
-        data_time.update(time.time() - end)
+        batch_time = AverageMeter('Time', ':6.3f')
+        data_time = AverageMeter('Data', ':6.3f')
+        losses = AverageMeter('Loss', ':.4e')
+        top1 = AverageMeter('Acc@1', ':6.2f')
+        top5 = AverageMeter('Acc@5', ':6.2f')
+        progress = ProgressMeter(
+            len(train_loader),
+            [batch_time, data_time, losses, top1, top5],
+            prefix="Epoch: [{}]".format(epoch))
 
-        
-        images = images.cuda(device, non_blocking=True)
-        target = target.cuda(device, non_blocking=True)
+        # switch to train mode
+        model.train()
 
-        # compute output
-        output = model(images)
-        loss = criterion(output, target)
-
-        # measure accuracy and record loss
-        acc1, acc5 = accuracy(output, target, topk=(1, 5))
-        losses.update(loss.item(), images.size(0))
-        top1.update(acc1[0], images.size(0))
-        top5.update(acc5[0], images.size(0))
-
-        # compute gradient and do SGD step
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        # measure elapsed time
-        batch_time.update(time.time() - end)
         end = time.time()
+        for i, (images, target) in enumerate(train_loader):
+            if nmp.should_skip_step():
+                continue
+            # measure data loading time
+            data_time.update(time.time() - end)
 
-        if i % args.print_freq == 0:
-            progress.display(i)
+            
+            images = images.cuda(device, non_blocking=True)
+            target = target.cuda(device, non_blocking=True)
+
+            # compute output
+            output = model(images)
+            loss = criterion(output, target)
+
+            # measure accuracy and record loss
+            acc1, acc5 = accuracy(output, target, topk=(1, 5))
+            losses.update(loss.item(), images.size(0))
+            top1.update(acc1[0], images.size(0))
+            top5.update(acc5[0], images.size(0))
+
+            # compute gradient and do SGD step
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            # measure elapsed time
+            batch_time.update(time.time() - end)
+            end = time.time()
+
+            if i % args.print_freq == 0:
+                progress.display(i)
+            
+            nmp.step({"loss": loss.item()})
         
-        nmp.step({"loss": loss.item()})
+         # evaluate on validation set
+        acc1 = validate(val_loader, model, criterion, args, device)
+
+        # remember best acc@1 and save checkpoint
+        is_best = acc1 > best_acc1
+        best_acc1 = max(acc1, best_acc1)
+
+        # save model
+        save_checkpoint({
+            'epoch': epoch + 1,
+            'model_name_or_path': args.model_name_or_path,
+            'state_dict': model.state_dict(),
+            'best_acc1': best_acc1,
+            'optimizer' : optimizer.state_dict(),
+        }, is_best)
 
 
 def validate(val_loader, model, criterion, args, device):
@@ -110,7 +134,8 @@ def validate(val_loader, model, criterion, args, device):
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
     torch.save(state, filename)
     if is_best:
-        shutil.copyfile(filename, 'model_best.pth.tar')
+        # shutil.copyfile(filename, 'model_best.pth.tar')
+        nmp.save_pretrained(extra_dir_or_files=filename)
 
 
 class AverageMeter(object):

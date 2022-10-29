@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 
 import os
-platform = os.environ['PLATFORM']
-print(f'platform : {platform}')
-
 import pickle
 from dataclasses import asdict
 from pathlib import Path
@@ -43,7 +40,6 @@ from arguments import (
 use_hivemind_log_handler("in_root_logger")
 logger = get_logger(__name__)
 
-
 def main():
     parser = HfArgumentParser(
         (
@@ -71,13 +67,11 @@ def main():
     data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm_probability=0.15)
 
     # get optimizer
-    optimizer, collaborative_call, local_public_key = get_optimizer(model, training_args, collaboration_args,
-                                                                    averager_args, tracker_args)
+    optimizer, collaborative_call, local_public_key = get_optimizer(model, training_args, collaboration_args, averager_args, tracker_args)
 
     # start training
-    train(tokenized_datasets, model, tokenizer, training_args, data_collator, optimizer, collaborative_call,
-          local_public_key)
-
+    train(tokenized_datasets, model, tokenizer, training_args, data_collator, optimizer, collaborative_call, local_public_key)
+    
 
 if __name__ == "__main__":
     main()

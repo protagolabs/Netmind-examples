@@ -33,34 +33,35 @@ class AverageMeter(object):
         fmtstr = '{name} {val' + self.fmt + '} ({avg' + self.fmt + '})'
         return fmtstr.format(**self.__dict__)
 
-def train(train_loader, model, criterion, optimizer, epoch, collaborative_call,device):
-    max_clip_norm = 1.0
+def train(train_loader, val_loader, model, criterion, optimizer, training_args, collaborative_call,device):
+    
     # switch to train mode
     model.train()
 
-    end = time.time()
-    for i, (images, target) in enumerate(train_loader):
+    for epoch in range(training_args.num_train_epochs):
+        adjust_learning_rate(optimizer, epoch, training_args)
+        for i, (images, target) in enumerate(train_loader):
 
-        images = images.cuda(device, non_blocking=True)
-        target = target.cuda(device, non_blocking=True)
+            images = images.cuda(device, non_blocking=True)
+            target = target.cuda(device, non_blocking=True)
 
-        # compute output
-        output = model(images)
-        loss = criterion(output, target)
+            # compute output
+            output = model(images)
+            loss = criterion(output, target)
 
-        # compute gradient and do SGD step
-        optimizer.zero_grad()
-        loss.backward()
-        # gradient clip
-        clip_grad_norm_(model.parameters(), max_clip_norm)
-        optimizer.step()
+            # compute gradient and do SGD step
+            optimizer.zero_grad()
+            loss.backward()
+            # gradient clip
+            clip_grad_norm_(model.parameters(), training_args.max_grad_norm)
+            optimizer.step()
 
-        # at the end of the step: on_step_end
-        collaborative_call.on_step_end(loss=loss.item())
+            # at the end of the step: on_step_end
+            collaborative_call.on_step_end(loss=loss.item())
+        
+        # evaluate on validation set
+        acc1, acc5 = validate(val_loader, model, criterion, device)
 
-
-        # display the accuracy
-        #progress.display(i)
 
 def validate(val_loader, model, criterion, device):
     batch_time = AverageMeter('Time', ':6.3f')

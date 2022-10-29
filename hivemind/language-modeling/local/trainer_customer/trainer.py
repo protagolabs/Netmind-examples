@@ -15,7 +15,7 @@ logger = get_logger(__name__)
 
 def train(tokenized_datasets, model, tokenizer, training_args, data_collator, optimizer, collaborative_call, local_public_key):
 
-    dataloader = DataLoader(tokenized_datasets["train"], shuffle=True, collate_fn=data_collator, batch_size=training_args.per_device_train_batch_size, pin_memory=True)
+    dataloader = DataLoader(tokenized_datasets, shuffle=True, collate_fn=data_collator, batch_size=training_args.per_device_train_batch_size, pin_memory=True)
 
     num_update_steps_per_epoch = len(dataloader) // training_args.gradient_accumulation_steps
     num_update_steps_per_epoch = max(num_update_steps_per_epoch, 1)
