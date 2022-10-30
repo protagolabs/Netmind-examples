@@ -26,7 +26,6 @@ from tqdm import tqdm
 from hivemind import DHT, Float16Compression, Optimizer, get_dht_time
 from hivemind.utils.logging import get_logger, use_hivemind_log_handler
 from hivemind.utils.networking import log_visible_maddrs
-from NetmindMixins.Netmind import HivemindTrainerCallback
 
 import utils
 from arguments import (

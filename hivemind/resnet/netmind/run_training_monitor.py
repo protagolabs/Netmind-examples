@@ -92,12 +92,27 @@ class CheckpointHandler:
         self.model = get_model(training_args)
         self.model = NetmindModel(self.model)
 
+        no_decay = ["bias", "LayerNorm.weight"]
+        optimizer_grouped_parameters = [
+            {
+                "params": [p for n, p in self.model.named_parameters() if not any(nd in n for nd in no_decay)],
+                "weight_decay": 0.01,
+            },
+            {
+                "params": [p for n, p in self.model.named_parameters() if any(nd in n for nd in no_decay)],
+                "weight_decay": 0.0,
+            },
+        ]
+
         opt = NetmindOptimizer(
-            torch.optim.SGD(
-                self.model.parameters(),
+            Lamb(
+                optimizer_grouped_parameters,
                 lr=training_args.learning_rate,
-                momentum=training_args.momentum,
+                betas=(training_args.adam_beta1, training_args.adam_beta2),
+                eps=training_args.adam_epsilon,
                 weight_decay=training_args.weight_decay,
+                clamp_value=training_args.clamp_value,
+                debias=True,
             )
         )
 
@@ -201,19 +216,18 @@ if __name__ == "__main__":
                 current_loss = sum_loss / sum_mini_steps
                 logger.info(f"Step #{current_step}\tloss = {current_loss:.5f}")
 
-                hmp.step(current_step, 
-                    {
-                        "loss": current_loss,
-                        "alive peers": alive_peers,
-                        "samples": num_samples,
-                        "performance": sum_perf
-                    }
-                )
+                monitor_metrics = {
+                    "loss": current_loss,
+                    "alive peers": alive_peers,
+                    "samples": num_samples,
+                    "performance": sum_perf
+                }
                 
                 if monitor_args.store_checkpoints:
                     if checkpoint_handler.is_time_to_save_state(current_step):
                         checkpoint_handler.save_state(current_step)
                         if checkpoint_handler.is_time_to_upload():
                             checkpoint_handler.upload_checkpoint(current_loss)
+        hmp.step(current_step, monitor_metrics)
         logger.debug("Peer is still alive...")
         time.sleep(monitor_args.refresh_period)
