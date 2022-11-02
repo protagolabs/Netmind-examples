@@ -52,9 +52,7 @@ def main(args):
 
     # Prepare optimizer
     optimizer = get_optimizer(model,args)
-    
-    
-    
+
     # define loss function (criterion) and optimizer
     criterion = nn.CrossEntropyLoss()
     cudnn.benchmark = True

@@ -2,20 +2,7 @@ import transformers
 import torch
 import os
 import numpy as np
-import argparse
-from datetime import datetime
 from tqdm import tqdm
-from torch.utils.data import Dataset, DataLoader, IterableDataset
-from torch.utils.data.distributed import DistributedSampler
-import torch.distributed as dist
-from torch.nn import CrossEntropyLoss
-import pandas as pd
-from transformers import AdamW
-from transformers import AutoTokenizer
-from transformers import AutoModelForCausalLM, DataCollatorForLanguageModeling
-import matplotlib.pyplot as plt
-from model import get_model
-from data import get_data
 import logging
 # adv
 from torch.nn.utils import clip_grad_norm_
@@ -24,31 +11,6 @@ tqdm.pandas()
 
 logger = logging.getLogger(__name__)
 
-import transformers
-import torch
-import os
-import numpy as np
-import argparse
-from datetime import datetime
-from tqdm import tqdm
-from torch.utils.data import Dataset, DataLoader, IterableDataset
-from torch.utils.data.distributed import DistributedSampler
-import torch.distributed as dist
-from torch.nn import CrossEntropyLoss
-import pandas as pd
-from transformers import AdamW
-from transformers import AutoTokenizer
-from transformers import AutoModelForCausalLM, DataCollatorForLanguageModeling
-import matplotlib.pyplot as plt
-from model import get_model
-from data import get_data
-import logging
-# adv
-from torch.nn.utils import clip_grad_norm_
-from transformers import get_cosine_schedule_with_warmup,get_linear_schedule_with_warmup
-tqdm.pandas()
-
-logger = logging.getLogger(__name__)
 
 def train(dataloader, model, optimizer, args, device):
     print('start training')

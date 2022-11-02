@@ -2,17 +2,7 @@ import transformers
 import torch
 import os
 import numpy as np
-import argparse
-from datetime import datetime
 from tqdm import tqdm
-from torch.utils.data import Dataset, DataLoader, IterableDataset
-from torch.utils.data.distributed import DistributedSampler
-import torch.distributed as dist
-from torch.nn import CrossEntropyLoss
-import pandas as pd
-import matplotlib.pyplot as plt
-from model import get_model
-from data import get_data
 import logging
 # adv
 from torch.nn.utils import clip_grad_norm_
