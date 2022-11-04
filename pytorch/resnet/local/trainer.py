@@ -14,7 +14,7 @@ import torch
 def train(train_loader, train_sampler, val_loader, model, criterion, optimizer, args, device):
     
     best_acc1 = 0
-    for epoch in range(args.num_train_epochs):
+    for epoch in range(int(args.num_train_epochs)):
 
         # shuffle the training data at every epoch
         train_sampler.set_epoch(epoch)

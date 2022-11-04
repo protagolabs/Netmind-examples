@@ -4,7 +4,6 @@ import os
 from transformers import TrainingArguments
 
 
-
 @dataclass
 class BaseTrainingArguments:
     experiment_prefix: str = field(
@@ -14,21 +13,21 @@ class BaseTrainingArguments:
         default_factory=list,
         metadata={
             "help": "Multiaddrs of the peers that will welcome you into the existing collaboration. "
-            "Example: /ip4/203.0.113.1/tcp/31337/p2p/XXXX /ip4/203.0.113.2/tcp/7777/p2p/YYYY"
+                    "Example: /ip4/203.0.113.1/tcp/31337/p2p/XXXX /ip4/203.0.113.2/tcp/7777/p2p/YYYY"
         },
     )
     use_ipfs: bool = field(
         default=False,
         metadata={
             "help": "Use IPFS to find initial_peers. If enabled, you only need to provide /p2p/XXXX part of the multiaddrs "
-            "for the initial_peers (no need to specify a particular IPv4/IPv6 host and port)"
+                    "for the initial_peers (no need to specify a particular IPv4/IPv6 host and port)"
         },
     )
     host_maddrs: List[str] = field(
         default_factory=lambda: ["/ip4/0.0.0.0/tcp/0"],
         metadata={
             "help": "Multiaddrs to listen for external connections from other p2p instances. "
-            "Defaults to all IPv4 interfaces and the TCP protocol: /ip4/0.0.0.0/tcp/0"
+                    "Defaults to all IPv4 interfaces and the TCP protocol: /ip4/0.0.0.0/tcp/0"
         },
     )
     announce_maddrs: List[str] = field(
@@ -39,7 +38,7 @@ class BaseTrainingArguments:
         default=None,
         metadata={
             "help": "Path to a pre-generated private key file. If defined, makes the peer ID deterministic. "
-            "May be generated using ``./p2p-keygen`` from ``go-libp2p-daemon``."
+                    "May be generated using ``./p2p-keygen`` from ``go-libp2p-daemon``."
         },
     )
 
@@ -110,7 +109,8 @@ class CollaborationArguments(OptimizerArguments, BaseTrainingArguments):
 @dataclass
 class DatasetArguments:
     dataset_path: Optional[str] = field(
-        default=os.getenv("DATA_LOCATION", "data/albert_tokenized_wikitext"), metadata={"help": "Path to the tokenized dataset"}
+        default=os.getenv("DATA_LOCATION", "data/albert_tokenized_wikitext"),
+        metadata={"help": "Path to the tokenized dataset"}
     )
     tokenizer_path: Optional[str] = field(default="data/tokenizer", metadata={"help": "Path to the tokenizer"})
     model_name_or_path: Optional[str] = field(
@@ -125,7 +125,7 @@ class ModelTrainingArguments(TrainingArguments):
     arch: str = "resnet50"
     pretrained: bool = "False"
 
-    num_train_epochs: int = 90
+    num_train_epochs: int = 3
     dataloader_num_workers: int = 4
     per_device_train_batch_size: int = 16
     per_device_eval_batch_size: int = 4

@@ -189,6 +189,7 @@ if __name__ == "__main__":
 
     while True:
         metrics_dict = dht.get(experiment_prefix + "_metrics", latest=True)
+        monitor_metrics = {}
         if metrics_dict is not None:
             metrics_dict = metrics_dict.value
             metrics = [utils.LocalMetrics.parse_obj(metrics_dict[peer].value) for peer in metrics_dict]
@@ -215,14 +216,19 @@ if __name__ == "__main__":
                     sum_mini_steps += item.mini_steps
                 current_loss = sum_loss / sum_mini_steps
                 logger.info(f"Step #{current_step}\tloss = {current_loss:.5f}")
-
+                """
                 monitor_metrics = {
                     "loss": current_loss,
                     "alive peers": alive_peers,
                     "samples": num_samples,
                     "performance": sum_perf
                 }
-                
+                """
+                monitor_metrics["loss"] = current_loss
+                monitor_metrics["alive peers"] = alive_peers
+                monitor_metrics["samples"] = num_samples
+                monitor_metrics["performance"] = sum_perf
+
                 if monitor_args.store_checkpoints:
                     if checkpoint_handler.is_time_to_save_state(current_step):
                         checkpoint_handler.save_state(current_step)
