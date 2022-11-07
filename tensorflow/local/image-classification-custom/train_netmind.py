@@ -30,8 +30,6 @@ if __name__ == '__main__':
 
     mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
 
-
-
      # you can use smaller data for code checking like food-101 dataset
     train_ds = tf.keras.preprocessing.image_dataset_from_directory(
         args.data,
@@ -112,7 +110,7 @@ if __name__ == '__main__':
         model.summary()
 
 
-        optimizer = tf.keras.optimizers.SGD(args.initial_learning_rate *  n_workers)
+        optimizer = tf.keras.optimizers.SGD(args.learning_rate *  n_workers)
 
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=model)
 
@@ -172,10 +170,10 @@ if __name__ == '__main__':
             total_loss +=loss_tmp
             num_batches += 1
 
-        train_loss = total_loss / num_batches
-        # netmind relatived
-        print(f'train_accuracy : {test_accuracy} , {type(test_accuracy)}')
-        print(f'test_loss : {test_loss} , {type(test_loss)}')
+            train_loss = total_loss / train_num
+            # netmind relatived
+            print(f'train_accuracy : {test_accuracy} , {type(test_accuracy)}')
+            print(f'test_loss : {test_loss} , {type(test_loss)}')
 
         # TEST LOOP
         for x in tqdm(test_data_iterator):
