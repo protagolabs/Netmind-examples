@@ -36,8 +36,6 @@ if __name__ == '__main__':
     tokenizer_name = "bert-base-uncased"
     model_name_or_path = None  # for training from scratch
 
-    per_device_train_batch_size = 8
-    learning_rate = 0.0001
     warmup_proportion = 0.15
     mlm_probability = 0.1
     weight_decay = 1e-7
@@ -46,7 +44,7 @@ if __name__ == '__main__':
 
     n_workers = len(json.loads(os.environ['TF_CONFIG']).get('cluster', {}).get('worker'))
     logger.info(f'c.tf_config : {c.tf_config}')
-    global_batch_size = per_device_train_batch_size * n_workers
+    global_batch_size = args.per_device_train_batch_size * n_workers
 
     strategy = tf.distribute.MultiWorkerMirroredStrategy()
 
@@ -149,7 +147,7 @@ if __name__ == '__main__':
         # )
 
         optimizer, lr_schedule = create_optimizer(
-            init_lr=learning_rate,
+            init_lr=args.learning_rate,
             num_train_steps=num_train_steps,
             num_warmup_steps=num_warmup_steps,
             weight_decay_rate=weight_decay,
@@ -222,7 +220,7 @@ if __name__ == '__main__':
     #     model_name_or_path = None  # for training from scratch
     #
     #
-    #     per_device_train_batch_size = 8
+    #     args.per_device_train_batch_size = 8
     #     learning_rate = 0.0001
     #     warmup_proportion = 0.15
     #     mlm_probability = 0.1
@@ -232,7 +230,7 @@ if __name__ == '__main__':
     #
     #     n_workers = len(json.loads(os.environ['TF_CONFIG']).get('cluster', {}).get('worker'))
     #     logger.info(f'c.tf_config : {c.tf_config}')
-    #     global_batch_size = per_device_train_batch_size * n_workers
+    #     global_batch_size = args.per_device_train_batch_size * n_workers
     #
     #     strategy = tf.distribute.MultiWorkerMirroredStrategy()
     #
@@ -370,8 +368,8 @@ if __name__ == '__main__':
     #     logger.info("***** Running training *****")
     #     logger.info(f"  Num examples = {len(train_dataset)}")
     #     logger.info(f"  Num Epochs = {args.num_train_epochs}")
-    #     logger.info(f"  Instantaneous batch size per device = {per_device_train_batch_size}")
-    #     logger.info(f"  Total train batch size = {per_device_train_batch_size * n_workers}")
+    #     logger.info(f"  Instantaneous batch size per device = {args.per_device_train_batch_size}")
+    #     logger.info(f"  Total train batch size = {args.per_device_train_batch_size * n_workers}")
     #
     #
     #
@@ -388,8 +386,8 @@ if __name__ == '__main__':
     logger.info("***** Running training *****")
     logger.info(f"  Num examples = {len(train_dataset)}")
     logger.info(f"  Num Epochs = {args.num_train_epochs}")
-    logger.info(f"  Instantaneous batch size per device = {per_device_train_batch_size}")
-    logger.info(f"  Total train batch size = {per_device_train_batch_size * n_workers}")
+    logger.info(f"  Instantaneous batch size per device = {args.per_device_train_batch_size}")
+    logger.info(f"  Total train batch size = {args.per_device_train_batch_size * n_workers}")
 
     history = model.fit(
         tf_train_dataset,

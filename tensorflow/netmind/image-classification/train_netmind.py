@@ -124,6 +124,6 @@ if __name__ == '__main__':
         validation_data=test_data_iterator,
         steps_per_epoch= train_num  // global_batch_size , 
         validation_steps= test_num // global_batch_size ,
-        epochs=args.epoch_num,
+        epochs=args.num_train_epochs,
         callbacks=all_callbacks
     )

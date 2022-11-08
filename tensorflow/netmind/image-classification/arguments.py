@@ -14,7 +14,7 @@ def setup_args():
     parser.add_argument("--save_steps", default=100, type=int)
 
     # the model training
-    parser.add_argument('--batch_size', default=64, type=int, required=False, help='training batchsize')
+    parser.add_argument('--per_device_train_batch_size', default=64, type=int, required=False, help='training batchsize')
     parser.add_argument('--val_data', default=None,  type=str, required=False, help='val data directory')
 
     # the data setting
@@ -22,6 +22,5 @@ def setup_args():
 
     # training setting
     parser.add_argument('--initial_learning_rate', default=0.1, type=float, required=False, help='initial learning rate')
-    parser.add_argument('--epoch_num', default=90, type=int, required=False, help='training epoch num')
     parser.add_argument('--seed', default=1, type=int, required=False, help='training seed')
     return parser.parse_args()
