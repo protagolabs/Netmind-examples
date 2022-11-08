@@ -163,7 +163,7 @@ if __name__ == '__main__':
                                                           profile_batch=0,
                                                           update_freq=args.save_steps)
 
-    checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(filepath=os.path.join(logdir, 'ckpt'),
+    model_callback = tf.keras.callbacks.ModelCheckpoint(filepath=os.path.join(logdir, 'ckpt'),
                                                              monitor='train_loss',
                                                              save_freq="epoch",
                                                              save_best_only=False,
@@ -172,7 +172,7 @@ if __name__ == '__main__':
 
     batches_per_epoch = len(tf_train_dataset)
 
-    all_callbacks = [tensorboard_callback, checkpoint_callback]
+    all_callbacks = [tensorboard_callback, model_callback]
 
     # region Training and validationfrom transformers import AutoTokenizer, AutoConfig, DataCollatorForLanguageModeling
     # import tensorflow as tf
