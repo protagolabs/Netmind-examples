@@ -90,18 +90,7 @@ class TrainingMonitorArguments(BaseTrainingArguments):
 
 
 
-# wrap the optimizer with gradient clipping
-class LambWithGradientClipping(Lamb):
-    """A version of LAMB that clips gradients based on their norm."""
 
-    def __init__(self, *args, max_grad_norm=1.0, **kwargs):
-        self.max_grad_norm = max_grad_norm
-        super().__init__(*args, **kwargs)
-
-    def step(self, *args, **kwargs):
-        iter_params = (param for group in self.param_groups for param in group["params"])
-        torch.nn.utils.clip_grad_norm_(iter_params, self.max_grad_norm)
-        return super().step(*args, **kwargs)
 
 class CheckpointHandler:
     def __init__(
@@ -139,18 +128,16 @@ class CheckpointHandler:
                 "weight_decay": 0.0,
             },
         ]
-
-        opt = NetmindOptimizer(
-            LambWithGradientClipping(
-                optimizer_grouped_parameters,
-                lr=training_args.learning_rate,
-                betas=(training_args.adam_beta1, training_args.adam_beta2),
-                eps=training_args.adam_epsilon,
-                weight_decay=training_args.weight_decay,
-                clamp_value=training_args.clamp_value,
-                debias=True,
-            )
+        opt = Lamb(
+            optimizer_grouped_parameters,
+            lr=training_args.learning_rate,
+            betas=(training_args.adam_beta1, training_args.adam_beta2),
+            eps=training_args.adam_epsilon,
+            weight_decay=training_args.weight_decay,
+            clamp_value=training_args.clamp_value,
+            debias=True,
         )
+
 
         scheduler = lambda opt: get_linear_schedule_with_warmup(
             opt, num_warmup_steps=training_args.warmup_steps, num_training_steps=training_args.total_steps

@@ -74,7 +74,6 @@ def train(train_loader, train_sampler, val_loader, model, criterion, optimizer, 
         # remember best acc@1 and save checkpoint
         is_best = acc1 > best_acc1
         best_acc1 = max(acc1, best_acc1)
-
         # save model
         save_checkpoint({
             'epoch': epoch + 1,

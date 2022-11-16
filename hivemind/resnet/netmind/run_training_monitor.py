@@ -92,27 +92,12 @@ class CheckpointHandler:
         self.model = get_model(training_args)
         self.model = NetmindModel(self.model)
 
-        no_decay = ["bias", "LayerNorm.weight"]
-        optimizer_grouped_parameters = [
-            {
-                "params": [p for n, p in self.model.named_parameters() if not any(nd in n for nd in no_decay)],
-                "weight_decay": 0.01,
-            },
-            {
-                "params": [p for n, p in self.model.named_parameters() if any(nd in n for nd in no_decay)],
-                "weight_decay": 0.0,
-            },
-        ]
-
         opt = NetmindOptimizer(
-            Lamb(
-                optimizer_grouped_parameters,
+            torch.optim.SGD(
+                self.model.parameters(),
                 lr=training_args.learning_rate,
-                betas=(training_args.adam_beta1, training_args.adam_beta2),
-                eps=training_args.adam_epsilon,
+                momentum=training_args.momentum,
                 weight_decay=training_args.weight_decay,
-                clamp_value=training_args.clamp_value,
-                debias=True,
             )
         )
 
@@ -228,12 +213,13 @@ if __name__ == "__main__":
                 monitor_metrics["alive peers"] = alive_peers
                 monitor_metrics["samples"] = num_samples
                 monitor_metrics["performance"] = sum_perf
+                hmp.step(current_step, monitor_metrics)
 
                 if monitor_args.store_checkpoints:
                     if checkpoint_handler.is_time_to_save_state(current_step):
                         checkpoint_handler.save_state(current_step)
                         if checkpoint_handler.is_time_to_upload():
                             checkpoint_handler.upload_checkpoint(current_loss)
-        hmp.step(current_step, monitor_metrics)
+
         logger.debug("Peer is still alive...")
         time.sleep(monitor_args.refresh_period)

@@ -65,6 +65,9 @@ def train(train_loader, train_sampler, val_loader, model, criterion, optimizer, 
             if i % args.print_freq == 0:
                 progress.display(i)
 
+            monitor_metrics = {
+                "loss": loss.item()
+            }
         # evaluate on validation set
         acc1 = validate(val_loader, model, criterion, args, device)
 
@@ -120,6 +123,10 @@ def validate(val_loader, model, criterion, args, device):
             if i % args.print_freq == 0:
                 progress.display(i)
 
+            monitor_metrics = {
+                "top1": "{top1.avg: .3f}".format(top1=top1),
+                "top5": "{top5.avg: .3f}".format(top5=top5)
+            }
         # TODO: this should also be done with the ProgressMeter
         print(' * Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f}'
               .format(top1=top1, top5=top5))

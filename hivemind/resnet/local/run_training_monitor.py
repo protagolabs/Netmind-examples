@@ -90,26 +90,11 @@ class CheckpointHandler:
         
         self.model = get_model(training_args)
 
-        no_decay = ["bias", "LayerNorm.weight"]
-        optimizer_grouped_parameters = [
-            {
-                "params": [p for n, p in self.model.named_parameters() if not any(nd in n for nd in no_decay)],
-                "weight_decay": 0.01,
-            },
-            {
-                "params": [p for n, p in self.model.named_parameters() if any(nd in n for nd in no_decay)],
-                "weight_decay": 0.0,
-            },
-        ]
-
-        opt = Lamb(
-            optimizer_grouped_parameters,
+        opt = torch.optim.SGD(
+            self.model.parameters(),
             lr=training_args.learning_rate,
-            betas=(training_args.adam_beta1, training_args.adam_beta2),
-            eps=training_args.adam_epsilon,
+            momentum=training_args.momentum,
             weight_decay=training_args.weight_decay,
-            clamp_value=training_args.clamp_value,
-            debias=True,
         )
 
         self.state_averager = TrainingStateAverager(
@@ -183,7 +168,7 @@ if __name__ == "__main__":
 
     while True:
         metrics_dict = dht.get(experiment_prefix + "_metrics", latest=True)
-        monitor_metrics = {}
+
         if metrics_dict is not None:
             metrics_dict = metrics_dict.value
             metrics = [utils.LocalMetrics.parse_obj(metrics_dict[peer].value) for peer in metrics_dict]
@@ -210,18 +195,7 @@ if __name__ == "__main__":
                     sum_mini_steps += item.mini_steps
                 current_loss = sum_loss / sum_mini_steps
                 logger.info(f"Step #{current_step}\tloss = {current_loss:.5f}")
-                """
-                monitor_metrics = {
-                    "loss": current_loss,
-                    "alive peers": alive_peers,
-                    "samples": num_samples,
-                    "performance": sum_perf
-                }
-                """
-                monitor_metrics["loss"] = current_loss
-                monitor_metrics["alive peers"] = alive_peers
-                monitor_metrics["samples"] = num_samples
-                monitor_metrics["performance"] = sum_perf
+
                 if monitor_args.store_checkpoints:
                     if checkpoint_handler.is_time_to_save_state(current_step):
                         checkpoint_handler.save_state(current_step)

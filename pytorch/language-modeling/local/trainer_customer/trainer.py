@@ -57,6 +57,10 @@ def train(dataloader, model, optimizer, args, device):
             # free might_accumulatd tensors for OOM
             del outputs, batch
 
+            monitor_metrics = {
+                "loss": loss.item(),
+                "Learning rate": scheduler.get_last_lr()[0]
+            }
             # save model
             if t_total % args.save_steps == 0 and args.local_rank == 0: 
                 #logger.info('Step: {}\tLearning rate: {}\tLoss: {}\t'.format(t_total, scheduler.get_last_lr()[0], np.mean(_loss)))
