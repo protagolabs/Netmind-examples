@@ -174,6 +174,14 @@ if __name__ == '__main__':
             # netmind relatived
             print(f'train_accuracy : {test_accuracy} , {type(test_accuracy)}')
             print(f'test_loss : {test_loss} , {type(test_loss)}')
+            train_monitor_metrics = {
+                "loss": float(train_loss.numpy())
+            }
+
+        eval_monitor_metrics = {
+            'eval loss': float(test_loss.result().numpy()),
+            'eval-accuracy':float(test_accuracy.result().numpy())
+        }
 
         # TEST LOOP
         for x in tqdm(test_data_iterator):
