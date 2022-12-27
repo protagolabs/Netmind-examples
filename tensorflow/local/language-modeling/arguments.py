@@ -9,7 +9,7 @@ def setup_args():
     parser = argparse.ArgumentParser()
     # these basic args are needed to run the train_netmind.py code
 
-    parser.add_argument('--model_name_or_path', default='resnet18', )
+    parser.add_argument('--model_name_or_path', default='bert-base-uncased', )
     parser.add_argument("--warmup_steps", default=5000, type=float)
     parser.add_argument('--learning_rate', default=0.0001, type=float, required=False, help='initial learning rate')
 

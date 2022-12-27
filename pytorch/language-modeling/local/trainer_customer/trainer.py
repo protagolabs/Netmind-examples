@@ -2,12 +2,10 @@ import transformers
 import torch
 import os
 import numpy as np
-from tqdm import tqdm
 import logging
 # adv
 from torch.nn.utils import clip_grad_norm_
 from transformers import get_cosine_schedule_with_warmup,get_linear_schedule_with_warmup
-tqdm.pandas()
 
 logger = logging.getLogger(__name__)
 
@@ -30,8 +28,8 @@ def train(dataloader, model, optimizer, args, device):
     for epoch in range(args.num_train_epochs):
         
         print("Local Rank: {}, Epoch: {}, Training ...".format(args.local_rank, epoch))
-        # setup loop with TQDM and dataloader
-        for batch in tqdm(dataloader):
+        # setup loop
+        for batch in dataloader:
 
             t_total += 1
             # initialize calculated gradients (from prev step)
@@ -67,7 +65,7 @@ def train(dataloader, model, optimizer, args, device):
                 print('Step: {}\tLearning rate: {}\tLoss: {}\t'.format(t_total, scheduler.get_last_lr()[0], np.mean(_loss)))
                 model_save_path = './{}/model_step_{}'.format(args.output_dir,str(t_total))
                 if not os.path.exists(model_save_path):
-                    os.mkdir(model_save_path)
+                    os.makedirs(model_save_path, exist_ok=True)
                 model_to_save = model.module if hasattr(model, 'module') else model
                 model_to_save.save_pretrained(model_save_path)
                 logger.info("Saving model checkpoint to %s", model_save_path)

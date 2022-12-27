@@ -1,15 +1,6 @@
 import transformers
 import torch
-import os
-import numpy as np
-import argparse
-from datetime import datetime
 from tqdm import tqdm
-from torch.utils.data import Dataset, DataLoader, IterableDataset
-from torch.utils.data.distributed import DistributedSampler
-import torch.distributed as dist
-import pandas as pd
-from transformers import AdamW
 from transformers import HfArgumentParser
 from transformers import AutoModelForCausalLM, DataCollatorForLanguageModeling
 import matplotlib.pyplot as plt
@@ -44,11 +35,15 @@ def main(args):
 
     
 if __name__ == '__main__':
+    try:
+        parser = HfArgumentParser(
+                ModelTrainingArguments,
+        )
+        args = parser.parse_args_into_dataclasses()[0]
 
-    parser = HfArgumentParser(
-            ModelTrainingArguments,
-    )
-    args = parser.parse_args_into_dataclasses()[0]
+        main(args)
 
-
-    main(args)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        exit(1)

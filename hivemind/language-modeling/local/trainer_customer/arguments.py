@@ -120,6 +120,7 @@ class DatasetArguments:
 
 @dataclass
 class ModelTrainingArguments(TrainingArguments):
+    num_train_epochs: int = 3
     dataloader_num_workers: int = 4
     per_device_train_batch_size: int = 16
     per_device_eval_batch_size: int = 4

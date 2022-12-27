@@ -172,8 +172,7 @@ if __name__ == '__main__':
 
             train_loss = total_loss / train_num
             # netmind relatived
-            print(f'train_accuracy : {test_accuracy} , {type(test_accuracy)}')
-            print(f'test_loss : {test_loss} , {type(test_loss)}')
+            #print(f'loss : {float(train_loss.numpy())} ')
             train_monitor_metrics = {
                 "loss": float(train_loss.numpy())
             }

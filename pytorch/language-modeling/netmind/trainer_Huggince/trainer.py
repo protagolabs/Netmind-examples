@@ -57,7 +57,7 @@ def train(tokenizer, data_collator, tokenized_datasets, model, optimizer, args):
         args=args,
         tokenizer=tokenizer,
         data_collator=data_collator,
-        train_dataset=tokenized_datasets['train'] if args.do_train else None,
+        train_dataset=tokenized_datasets if args.do_train else None,
         eval_dataset=tokenized_datasets['validation'] if args.do_eval else None,
         optimizers=(optimizer, scheduler),
         callbacks=[CustomTrainerCallback],

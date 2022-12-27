@@ -163,6 +163,7 @@ if __name__ == "__main__":
         wandb.init(project=monitor_args.wandb_project)
 
     current_step = 0
+    monitor_metrics = {}
     if monitor_args.store_checkpoints:
         checkpoint_handler = CheckpointHandler(dataset_args, monitor_args, optimizer_args, averager_args, dht, training_args)
 
@@ -195,6 +196,13 @@ if __name__ == "__main__":
                     sum_mini_steps += item.mini_steps
                 current_loss = sum_loss / sum_mini_steps
                 logger.info(f"Step #{current_step}\tloss = {current_loss:.5f}")
+
+                monitor_metrics = {
+                    "loss": current_loss,
+                    "alive peers": alive_peers,
+                    "samples": num_samples,
+                    "performance": sum_perf
+                }
 
                 if monitor_args.store_checkpoints:
                     if checkpoint_handler.is_time_to_save_state(current_step):

@@ -12,6 +12,12 @@ args = setup_args()
 logger = logging.getLogger(__name__)
 
 
+class CustomTrainerCallback(tf.keras.callbacks.Callback):
+    # Hugging Face models have a save_pretrained() method that saves both the weights and the necessary
+    # metadata to allow them to be loaded as a pretrained model in future. This is a simple Keras callback
+    # that saves the model with this method after each epoch.
+    def __init__(self, batches_per_epoch, args=args):
+        super().__init__(batches_per_epoch, args)
 
 if __name__ == '__main__':
 
@@ -113,9 +119,9 @@ if __name__ == '__main__':
 
     history = model.fit(
         train_data_iterator,
-        validation_data=test_data_iterator,
+        validation_data=test_data_iterator if args.do_eval else None,
         steps_per_epoch= train_num  // global_batch_size , 
-        validation_steps= test_num // global_batch_size ,
+        validation_steps= test_num // global_batch_size if args.do_eval else None,
         epochs=args.num_train_epochs,
         callbacks=all_callbacks
     )
