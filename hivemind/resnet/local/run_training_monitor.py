@@ -90,12 +90,7 @@ class CheckpointHandler:
         
         self.model = get_model(training_args)
 
-        opt = torch.optim.SGD(
-            self.model.parameters(),
-            lr=training_args.learning_rate,
-            momentum=training_args.momentum,
-            weight_decay=training_args.weight_decay,
-        )
+        opt = self.get_optimizer(training_args)
 
         self.state_averager = TrainingStateAverager(
             dht=dht,
@@ -127,6 +122,15 @@ class CheckpointHandler:
             return True
         else:
             return False
+
+    def get_optimizer(self, training_args):
+        opt = torch.optim.SGD(
+            self.model.parameters(),
+            lr=training_args.learning_rate,
+            momentum=training_args.momentum,
+            weight_decay=training_args.weight_decay,
+        )
+        return opt
 
     def upload_checkpoint(self, current_loss):
         # Upload models to netmind

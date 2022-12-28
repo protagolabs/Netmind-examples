@@ -119,9 +119,9 @@ if __name__ == '__main__':
 
     history = model.fit(
         train_data_iterator,
-        validation_data=test_data_iterator if args.do_eval else None,
+        validation_data=test_data_iterator if hasattr(args, "do_eval") and args.do_eval else None,
         steps_per_epoch= train_num  // global_batch_size , 
-        validation_steps= test_num // global_batch_size if args.do_eval else None,
+        validation_steps= test_num // global_batch_size if hasattr(args, "do_eval") and args.do_eval else None,
         epochs=args.num_train_epochs,
         callbacks=all_callbacks
     )

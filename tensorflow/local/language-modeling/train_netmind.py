@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     #### you can save/load the preprocessed data here ###
 
-    train_dataset = datasets.load_from_disk(args.data)
+    train_dataset = datasets.load_from_disk(args.data + "/train")
 
     print(train_dataset)
     # region Load pretrained model and tokenizer
