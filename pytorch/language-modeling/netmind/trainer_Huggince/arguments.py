@@ -37,6 +37,3 @@ class ModelTrainingArguments(TrainingArguments):
     disable_tqdm: bool = True
     #must set report_to to avoid wandb login
     report_to: str = "none"  # let netmind implement w&b monitor
-
-    #import torch
-    #device = torch.device("cpu")

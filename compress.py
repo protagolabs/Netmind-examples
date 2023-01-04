@@ -29,8 +29,9 @@ for info in compress_dict:
         compress_dir = v[0]
         compress_file = v[1]
         command = f"cd {target_dir}" \
-                  f" && tar czvf {compress_file} {compress_dir}  " \
+                  f"&& tar czvf {compress_file} {compress_dir}  " \
                   f"&& cp {compress_file} {copy_dir } " \
+                  f"&& rm  {compress_file}" \
                   f"&& cd {root_dir}"
         ret = os.system(command)
         if ret != 0:

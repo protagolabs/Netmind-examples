@@ -1,3 +1,4 @@
+from NetmindMixins.Netmind import hmp, NetmindModel, NetmindOptimizer
 #!/usr/bin/env python3
 
 import time
@@ -22,7 +23,6 @@ from hivemind.utils.logging import get_logger, use_hivemind_log_handler
 from hivemind.utils.networking import log_visible_maddrs
 from model import get_model
 
-from NetmindMixins.Netmind import hmp, NetmindModel, NetmindOptimizer
 
 import transformers
 from transformers import (
@@ -89,9 +89,6 @@ class TrainingMonitorArguments(BaseTrainingArguments):
     store_checkpoints: bool = field(default=False, metadata={"help": "If True, enables CheckpointHandler"})
 
 
-
-
-
 class CheckpointHandler:
     def __init__(
         self,
@@ -103,16 +100,8 @@ class CheckpointHandler:
         dht: hivemind.DHT,
     ):
         self.save_checkpoint_step_interval = monitor_args.save_checkpoint_step_interval
-        # self.repo_path = monitor_args.repo_path
-        # self.repo_url = monitor_args.repo_url
         self.upload_interval = monitor_args.upload_interval
         self.previous_step = -1
-        # self.save_total_limit = training_args.save_total_limit
-        # initialize the checkpoint
-        # self.checkpoints_sorted = {}
-        # for i in range(self.save_total_limit):
-        #     output_dir = self.repo_path + "/checkpoint_" + str(i)
-        #     self.checkpoints_sorted[output_dir] = 10000000
 
         self.model, _ = get_model(dataset_args)
         self.model = NetmindModel(self.model)
@@ -128,16 +117,9 @@ class CheckpointHandler:
                 "weight_decay": 0.0,
             },
         ]
-        opt = Lamb(
-            optimizer_grouped_parameters,
-            lr=training_args.learning_rate,
-            betas=(training_args.adam_beta1, training_args.adam_beta2),
-            eps=training_args.adam_epsilon,
-            weight_decay=training_args.weight_decay,
-            clamp_value=training_args.clamp_value,
-            debias=True,
-        )
 
+        opt = self.get_optimizer(optimizer_grouped_parameters, training_args)
+        opt = NetmindOptimizer(opt)
 
         scheduler = lambda opt: get_linear_schedule_with_warmup(
             opt, num_warmup_steps=training_args.warmup_steps, num_training_steps=training_args.total_steps
@@ -175,9 +157,21 @@ class CheckpointHandler:
         else:
             return False
 
+    def get_optimizer(self, optimizer_grouped_parameters, training_args):
+        opt = Lamb(
+            optimizer_grouped_parameters,
+            lr=training_args.learning_rate,
+            betas=(training_args.adam_beta1, training_args.adam_beta2),
+            eps=training_args.adam_epsilon,
+            weight_decay=training_args.weight_decay,
+            clamp_value=training_args.clamp_value,
+            debias=True,
+        )
+        return opt
+
     def upload_checkpoint(self):
-        # Upload models to netmind
         hmp.save_pretrained()
+        # Upload models to netmind
         self.previous_timestamp = time.time()
 
 
@@ -214,6 +208,7 @@ if __name__ == "__main__":
     if monitor_args.store_checkpoints:
         checkpoint_handler = CheckpointHandler(dataset_args, training_args, monitor_args, optimizer_args, averager_args, dht)
     while True:
+        #nmp.update_progress_by_netmind_metris(dht)
 
         metrics_dict = dht.get(experiment_prefix + "_metrics", latest=True)
         if metrics_dict is not None:
@@ -251,13 +246,12 @@ if __name__ == "__main__":
                     "performance": sum_perf
                 }
 
-
                 if monitor_args.store_checkpoints:
                     if checkpoint_handler.is_time_to_save_state(current_step):
                         checkpoint_handler.save_state(current_step)
                         if checkpoint_handler.is_time_to_upload():
                             checkpoint_handler.upload_checkpoint()
         
-        hmp.step(current_step, monitor_metrics)
         logger.debug("Peer is still alive...")
         time.sleep(monitor_args.refresh_period)
+        hmp.step(current_step, monitor_metrics)

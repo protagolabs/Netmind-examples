@@ -1,3 +1,4 @@
+from NetmindMixins.Netmind import htp
 from dataclasses import asdict
 import torch
 from torch.utils.data import DataLoader
@@ -10,7 +11,6 @@ from transformers.optimization import get_linear_schedule_with_warmup
 
 from hivemind import DHT, Float16Compression, Optimizer, get_dht_time
 from hivemind.utils.networking import log_visible_maddrs
-from NetmindMixins.Netmind import htp
 
 import utils
 
@@ -96,12 +96,12 @@ def get_optimizer(model, training_args, collaboration_args, averager_args, track
         collaboration_args.statistics_expiration,
         collaboration_args.backup_every_steps,
     )
-
+    
     htp.init(
         dht,
         optimizer,
         local_public_key,
         collaboration_args.statistics_expiration
     )
-    
+
     return optimizer, collaborative_call, local_public_key

@@ -1,3 +1,4 @@
+from NetmindMixins.Netmind import HivemindTrainerCallback
 import os
 import pickle
 import sys
@@ -13,7 +14,6 @@ import torch
 
 from hivemind import DHT, Float16Compression, Optimizer, get_dht_time
 from hivemind.utils.logging import get_logger, use_hivemind_log_handler
-from NetmindMixins.Netmind import HivemindTrainerCallback
 
 import utils
 
@@ -55,7 +55,6 @@ class CollaborativeCallback(HivemindTrainerCallback):
         logger.info("Loading state from peers")
         self.optimizer.load_state_from_peers()
         return super().on_train_begin(args, state, control, **kwargs)
-
 
     def on_step_end(
         self, args: TrainingArguments, state: transformers.TrainerState, control: transformers.TrainerControl, **kwargs
@@ -121,3 +120,4 @@ class CollaborativeCallback(HivemindTrainerCallback):
         state = pickle.loads(backup)
         self.model.load_state_dict(state["model"])
         self.optimizer.load_state_dict(state["optimizer"])
+

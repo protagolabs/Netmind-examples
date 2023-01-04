@@ -1,3 +1,4 @@
+from NetmindMixins.Netmind import nmp, NetmindDistributedModel, NetmindOptimizer, NetmindDistributedModel
 import transformers
 import torch
 import os
@@ -19,8 +20,6 @@ import logging
 from arguments import setup_args
 tqdm.pandas()
 
-from NetmindMixins.Netmind import nmp, NetmindDistributedModel, NetmindOptimizer
-
 
 #logger = logging.getLogger(__name__)
 
@@ -32,8 +31,8 @@ def main(args):
 
     #set up distributed backend
     torch.manual_seed(0)
-    nmp.init()
 
+    nmp.init()
     dateset_sampler = DistributedSampler(dataset)
     data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm_probability=0.15)
     dataloader = DataLoader(
@@ -48,18 +47,23 @@ def main(args):
     ddp_model = NetmindDistributedModel(
         torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank], output_device=args.local_rank)
     )
+
     
     
     # Prepare optimizer
-    optimizer = NetmindOptimizer(get_optimizer(ddp_model,args))   
     # start train
+    optimizer = NetmindOptimizer(get_optimizer(ddp_model,args))
     nmp.init_train_bar(total_epoch=args.num_train_epochs, step_per_epoch=len(dataloader))
+
     train(dataloader, ddp_model, optimizer, args, device)
 
     
 if __name__ == '__main__':
-
-
-    args = setup_args()
-    main(args)
+    try:
+        args = setup_args()
+        main(args)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        exit(1)
     nmp.finish_training()

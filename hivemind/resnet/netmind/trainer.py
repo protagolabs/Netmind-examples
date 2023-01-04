@@ -1,3 +1,4 @@
+from NetmindMixins.Netmind import htp
 import pickle
 import sys
 from pathlib import Path
@@ -6,11 +7,9 @@ import torch
 from torch.nn.utils import clip_grad_norm_
 import os
 import random
-import math
 import shutil
 import time
 import torch
-from NetmindMixins.Netmind import htp
 
 class AverageMeter(object):
     """Computes and stores the average and current value"""
@@ -42,6 +41,7 @@ def train(dataloader, val_loader, model, criterion, optimizer, training_args, co
 
     num_update_steps_per_epoch = len(dataloader) // training_args.gradient_accumulation_steps
     num_update_steps_per_epoch = max(num_update_steps_per_epoch, 1)
+
     if training_args.max_steps > 0:
         htp.set_max_steps(training_args.max_steps)
     else:
@@ -49,10 +49,10 @@ def train(dataloader, val_loader, model, criterion, optimizer, training_args, co
     htp.set_total_train_batch_size(training_args.train_batch_size * training_args.gradient_accumulation_steps * training_args.world_size)
 
     for epoch in range(training_args.num_train_epochs):
+        htp.on_step_begin()
         adjust_learning_rate(optimizer, epoch, training_args)
         for i, (images, target) in enumerate(dataloader):
-            htp.on_step_begin()
-            
+
             images = images.cuda(device, non_blocking=True)
             target = target.cuda(device, non_blocking=True)
 
@@ -70,10 +70,11 @@ def train(dataloader, val_loader, model, criterion, optimizer, training_args, co
             # at the end of the step: on_step_end
             collaborative_call.on_step_end(loss=loss.item())
             if htp.on_step_end():
-                # shutdown optimizer.tracker
+                # shutdown optimizer
                 if hasattr(optimizer, "is_alive") and optimizer.is_alive():
                     optimizer.shutdown()
                 sys.exit(0)
+        
         # evaluate on validation set
         acc1, acc5 = validate(val_loader, model, criterion, device)
 
@@ -111,8 +112,6 @@ def validate(val_loader, model, criterion, device):
         # TODO: this should also be done with the ProgressMeter
         print(' * Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f}'
               .format(top1=top1, top5=top5))
-
-        htp.log({"top1": top1.avg.item(), "top5": top5.avg.item()})
 
     return top1.avg, top5.avg
 
