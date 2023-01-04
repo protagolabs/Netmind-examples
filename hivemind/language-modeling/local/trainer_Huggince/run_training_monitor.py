@@ -116,15 +116,7 @@ class CheckpointHandler:
             },
         ]
 
-        opt = Lamb(
-                optimizer_grouped_parameters,
-                lr=training_args.learning_rate,
-                betas=(training_args.adam_beta1, training_args.adam_beta2),
-                eps=training_args.adam_epsilon,
-                weight_decay=training_args.weight_decay,
-                clamp_value=training_args.clamp_value,
-                debias=True,
-        )
+        opt = self.get_optimizer(optimizer_grouped_parameters, training_args)
 
         scheduler = lambda opt: get_linear_schedule_with_warmup(
             opt, num_warmup_steps=training_args.warmup_steps, num_training_steps=training_args.total_steps
@@ -161,6 +153,18 @@ class CheckpointHandler:
             return True
         else:
             return False
+
+    def get_optimizer(self, optimizer_grouped_parameters, training_args):
+        opt = Lamb(
+            optimizer_grouped_parameters,
+            lr=training_args.learning_rate,
+            betas=(training_args.adam_beta1, training_args.adam_beta2),
+            eps=training_args.adam_epsilon,
+            weight_decay=training_args.weight_decay,
+            clamp_value=training_args.clamp_value,
+            debias=True,
+        )
+        return opt
 
     def upload_checkpoint(self):
         # Upload models to netmind

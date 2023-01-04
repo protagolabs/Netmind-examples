@@ -22,32 +22,31 @@ def train(tokenized_datasets, model, tokenizer, training_args, data_collator, op
 
     device = training_args.device
     model.train()
-    
-    for step, batch in enumerate(dataloader):
+    for epoch in range(training_args.num_train_epochs):
+        for step, batch in enumerate(dataloader):
 
-        # initialize calculated gradients (from prev step)
-        optimizer.zero_grad()
-        # pull all tensor batches required for training
-        input_ids = batch['input_ids'].to(device,non_blocking=True)
-        attention_mask = batch['attention_mask'].to(device,non_blocking=True)
-        labels = batch['labels'].to(device,non_blocking=True)
-        # process
-        outputs = model(input_ids=input_ids,attention_mask=attention_mask,
-                        labels=labels)
-        # extract loss
-        loss = outputs.loss
-        # calculate loss for every parameter that needs grad update
-        loss.backward()
+            # initialize calculated gradients (from prev step)
+            optimizer.zero_grad()
+            # pull all tensor batches required for training
+            input_ids = batch['input_ids'].to(device,non_blocking=True)
+            attention_mask = batch['attention_mask'].to(device,non_blocking=True)
+            labels = batch['labels'].to(device,non_blocking=True)
+            # process
+            outputs = model(input_ids=input_ids,attention_mask=attention_mask,
+                            labels=labels)
+            # extract loss
+            loss = outputs.loss
+            # calculate loss for every parameter that needs grad update
+            loss.backward()
 
-        # gradient clip
-        clip_grad_norm_(model.parameters(), training_args.max_grad_norm)
-        optimizer.step()
-        # free might_accumulatd tensors for OOM
-        del outputs, batch
+            # gradient clip
+            clip_grad_norm_(model.parameters(), training_args.max_grad_norm)
+            optimizer.step()
+            # free might_accumulatd tensors for OOM
+            del outputs, batch
 
-        # at the end of the step: on_step_end
-        collaborative_call.on_step_end(loss=loss.item())
+            # at the end of the step: on_step_end
+            collaborative_call.on_step_end(loss=loss.item())
 
-            
     # empty cache
     torch.cuda.empty_cache()

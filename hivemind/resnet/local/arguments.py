@@ -110,22 +110,24 @@ class CollaborationArguments(OptimizerArguments, BaseTrainingArguments):
 @dataclass
 class DatasetArguments:
     dataset_path: Optional[str] = field(
-        default=os.getenv("DATA_LOCATION", "data/albert_tokenized_wikitext"), metadata={"help": "Path to the tokenized dataset"}
+        default=os.getenv("DATA_LOCATION"), metadata={"help": "Path to the tokenized dataset"}
     )
-    tokenizer_path: Optional[str] = field(default="data/tokenizer", metadata={"help": "Path to the tokenizer"})
+    #tokenizer_path: Optional[str] = field(default="data/tokenizer", metadata={"help": "Path to the tokenizer"})
+    """
     model_name_or_path: Optional[str] = field(
-        default="https://s3.amazonaws.com/models.huggingface.co/bert/albert-large-v2-config.json",
-        metadata={"help": "Path to the model config"},
+        default="resnet50",
+        metadata={"help": "Path to the model config or model name"},
     )
     cache_dir: Optional[str] = field(default="data", metadata={"help": "Path to the cache"})
+    """
 
 
 @dataclass
 class ModelTrainingArguments(TrainingArguments):
-    arch: str = "resnet50"
+    model_name_or_path: str = "resnet50"
     pretrained: bool = "False"
     
-    num_train_epochs: int = 90
+    num_train_epochs: int = 3
     dataloader_num_workers: int = 4
     per_device_train_batch_size: int = 16
     per_device_eval_batch_size: int = 4

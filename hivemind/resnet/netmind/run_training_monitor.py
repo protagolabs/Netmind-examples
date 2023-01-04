@@ -1,3 +1,4 @@
+from NetmindMixins.Netmind import  hmp, NetmindModel, NetmindOptimizer
 #!/usr/bin/env python3
 
 import time
@@ -21,7 +22,6 @@ from model import get_model
 from data import get_data
 from optimizer import get_optimizer
 
-from NetmindMixins.Netmind import hmp, NetmindModel, NetmindOptimizer
 
 import utils
 from arguments import (
@@ -92,14 +92,8 @@ class CheckpointHandler:
         self.model = get_model(training_args)
         self.model = NetmindModel(self.model)
 
-        opt = NetmindOptimizer(
-            torch.optim.SGD(
-                self.model.parameters(),
-                lr=training_args.learning_rate,
-                momentum=training_args.momentum,
-                weight_decay=training_args.weight_decay,
-            )
-        )
+        opt = self.get_optimizer(training_args)
+        opt = NetmindOptimizer(opt)
 
         self.state_averager = TrainingStateAverager(
             dht=dht,
@@ -132,9 +126,18 @@ class CheckpointHandler:
         else:
             return False
 
+    def get_optimizer(self, training_args):
+        opt = torch.optim.SGD(
+            self.model.parameters(),
+            lr=training_args.learning_rate,
+            momentum=training_args.momentum,
+            weight_decay=training_args.weight_decay,
+        )
+        return opt
+
     def upload_checkpoint(self, current_loss):
-        # Upload models to netmind
         hmp.save_pretrained()
+        # Upload models to netmind
         self.previous_timestamp = time.time()
 
 if __name__ == "__main__":
@@ -169,11 +172,13 @@ if __name__ == "__main__":
         wandb.init(project=monitor_args.wandb_project)
 
     current_step = 0
+    monitor_metrics = {}
     if monitor_args.store_checkpoints:
         checkpoint_handler = CheckpointHandler(dataset_args, monitor_args, optimizer_args, averager_args, dht, training_args)
 
     while True:
         metrics_dict = dht.get(experiment_prefix + "_metrics", latest=True)
+
         if metrics_dict is not None:
             metrics_dict = metrics_dict.value
             metrics = [utils.LocalMetrics.parse_obj(metrics_dict[peer].value) for peer in metrics_dict]
@@ -201,15 +206,13 @@ if __name__ == "__main__":
                 current_loss = sum_loss / sum_mini_steps
                 logger.info(f"Step #{current_step}\tloss = {current_loss:.5f}")
 
-                hmp.step(current_step, 
-                    {
-                        "loss": current_loss,
-                        "alive peers": alive_peers,
-                        "samples": num_samples,
-                        "performance": sum_perf
-                    }
-                )
-                
+                monitor_metrics = {
+                    "loss": current_loss,
+                    "alive peers": alive_peers,
+                    "samples": num_samples,
+                    "performance": sum_perf
+                }
+
                 if monitor_args.store_checkpoints:
                     if checkpoint_handler.is_time_to_save_state(current_step):
                         checkpoint_handler.save_state(current_step)
@@ -217,3 +220,4 @@ if __name__ == "__main__":
                             checkpoint_handler.upload_checkpoint(current_loss)
         logger.debug("Peer is still alive...")
         time.sleep(monitor_args.refresh_period)
+        hmp.step(current_step, monitor_metrics)

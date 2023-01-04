@@ -1,3 +1,4 @@
+from NetmindMixins.Netmind import htp
 #!/usr/bin/env python3
 
 import os
@@ -40,7 +41,6 @@ import torchvision.models as models
 
 from hivemind import DHT, Float16Compression, Optimizer, get_dht_time
 from hivemind.utils.logging import get_logger, use_hivemind_log_handler
-from NetmindMixins.Netmind import htp
 
 from model import get_model
 from data import get_data
@@ -100,10 +100,8 @@ def main():
     # define optimzier and callback
     optimizer, collaborative_call = get_optimizer(model, training_args, collaboration_args, averager_args, tracker_args)
 
-    
     train(train_loader, val_loader, model, criterion, optimizer, training_args, collaborative_call,device)
 
-        
 
 if __name__ == "__main__":
     main()

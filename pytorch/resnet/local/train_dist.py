@@ -1,9 +1,3 @@
-import os
-import random
-import shutil
-import time
-import warnings
-
 import torch
 import torch.nn as nn
 import torch.nn.parallel
@@ -52,9 +46,7 @@ def main(args):
 
     # Prepare optimizer
     optimizer = get_optimizer(model,args)
-    
-    
-    
+
     # define loss function (criterion) and optimizer
     criterion = nn.CrossEntropyLoss()
     cudnn.benchmark = True
@@ -64,7 +56,12 @@ def main(args):
 
     
 if __name__ == '__main__':
-    args = setup_args()
+    try:
+        args = setup_args()
 
-    best_acc1 = 0
-    main(args)
+        best_acc1 = 0
+        main(args)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        exit(1)

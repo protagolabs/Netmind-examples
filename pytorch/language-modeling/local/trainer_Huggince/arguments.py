@@ -33,3 +33,7 @@ class ModelTrainingArguments(TrainingArguments):
 
     output_dir: str = "outputs"
     max_steps: int = -1  # meant the total training steps
+    #avoid log increase sharply
+    disable_tqdm: bool = True
+    #must set report_to to avoid wandb login
+    report_to: str = "none"  # let netmind implement w&b monitor

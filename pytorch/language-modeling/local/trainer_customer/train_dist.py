@@ -53,8 +53,10 @@ def main(args):
 
     
 if __name__ == '__main__':
-
-    args = setup_args()
-
-
-    main(args)
+    try:
+        args = setup_args()
+        main(args)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        exit(1)

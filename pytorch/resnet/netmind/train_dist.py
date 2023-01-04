@@ -1,9 +1,4 @@
-import os
-import random
-import shutil
-import time
-import warnings
-
+from NetmindMixins.Netmind import nmp, NetmindDistributedModel, NetmindOptimizer
 import torch
 import torch.nn as nn
 import torch.nn.parallel
@@ -17,7 +12,7 @@ from model import get_model
 from data import get_data
 from optimizer import get_optimizer
 from trainer import train
-from NetmindMixins.Netmind import nmp, NetmindDistributedModel, NetmindOptimizer
+
 
 
 def main(args):
@@ -26,10 +21,9 @@ def main(args):
     model = get_model(args)
     train_dataset, val_datset = get_data(args)
 
-    #set up distributed backend
     torch.manual_seed(0)
-    nmp.init()
 
+    nmp.init()
     train_sampler = DistributedSampler(train_dataset)
     train_loader = DataLoader(
         train_dataset, batch_size=args.per_device_train_batch_size, shuffle=(train_sampler is None),
@@ -46,28 +40,37 @@ def main(args):
     print('setup gpu')
     model.to(device)
     # wrap the model
-    model = NetmindDistributedModel(
+    ddp_model = NetmindDistributedModel(
         torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank], output_device=args.local_rank)
     )
+
+
+    # wait until data/model has loaded
     dist.barrier()
 
     # Prepare optimizer
-    optimizer = NetmindOptimizer(get_optimizer(model,args))
 
+    optimizer = NetmindOptimizer(get_optimizer(ddp_model,args))
     # define loss function (criterion) and optimizer
-    criterion = nn.CrossEntropyLoss()
-    cudnn.benchmark = True
-    
     nmp.init_train_bar(total_epoch=args.num_train_epochs, step_per_epoch=len(train_loader))
+    criterion = nn.CrossEntropyLoss()
     nmp.init_eval_bar(total_epoch=args.num_train_epochs)
+    cudnn.benchmark = True
 
     # start train
     train(train_loader, train_sampler, val_loader, model, criterion, optimizer, args, device)
 
     
 if __name__ == '__main__':
-    args = setup_args()
+    try:
+        args = setup_args()
 
-    best_acc1 = 0
-    main(args)
+        best_acc1 = 0
+        main(args)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        exit(1)
+
     nmp.finish_training()
+

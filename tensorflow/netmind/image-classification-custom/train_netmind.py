@@ -1,3 +1,4 @@
+from NetmindMixins.Netmind import nmp, NetmindDistributedModel
 import os
 import tensorflow as tf
 import config as c
@@ -7,7 +8,6 @@ from tqdm import tqdm
 
 import json
 import config as c
-from NetmindMixins.Netmind import nmp, NetmindDistributedModel
 
 args = setup_args()
 
@@ -27,12 +27,10 @@ if __name__ == '__main__':
 
     n_workers = len(json.loads(os.environ['TF_CONFIG']).get('cluster', {}).get('worker'))
     logger.info(f'c.tf_config : {c.tf_config}')
-    global_batch_size = args.batch_size * n_workers
+    global_batch_size = args.per_device_train_batch_size * n_workers
 
     mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
-
-    nmp.init(load_checkpoint=False)
-
+    nmp.init()
 
      # you can use smaller data for code checking like food-101 dataset
     train_ds = tf.keras.preprocessing.image_dataset_from_directory(
@@ -114,7 +112,7 @@ if __name__ == '__main__':
         model.summary()
 
 
-        optimizer = tf.keras.optimizers.SGD(args.initial_learning_rate *  n_workers)
+        optimizer = tf.keras.optimizers.SGD(args.learning_rate *  n_workers)
 
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=model)
 
@@ -162,33 +160,41 @@ if __name__ == '__main__':
     # dataset_eval = test_iterator().batch(global_batch_size, drop_remainder=False)
     test_data_iterator = mirrored_strategy.experimental_distribute_dataset(val_ds)
 
-    NetmindDistributedModel(model)
 
-    nmp.init_train_bar(total_epoch=args.num_train_epochs, step_per_epoch=train_num//global_batch_size)
-    nmp.init_eval_bar(total_epoch=args.num_train_epochs)
     # epochs_trained = nmp.cur_epoch
 
-    for epoch in range(args.epoch_num):
+    NetmindDistributedModel(model)
+    nmp.init_eval_bar(total_epoch=args.num_train_epochs)
+    nmp.init_train_bar(total_epoch=args.num_train_epochs, step_per_epoch=train_num//global_batch_size)
+    for epoch in range(args.num_train_epochs):
         # TRAIN LOOP
         total_loss = 0.0
         num_batches = 0
         for ds in tqdm(train_data_iterator):
             if nmp.should_skip_step():
                 continue
+
             loss_tmp = distributed_train_step(ds)
             total_loss +=loss_tmp
             num_batches += 1
 
-        train_loss = total_loss / num_batches
-        # netmind relatived
-        nmp.step({"loss": float(train_loss.numpy())})
-        nmp.save_pretrained_by_step(train_num)
+            train_loss = total_loss / train_num
+            # netmind relatived
+            #print(f'loss : {float(train_loss.numpy())} ')
+            train_monitor_metrics = {
+                "loss": float(train_loss.numpy())
+            }
+            nmp.step(train_monitor_metrics)
+
+        eval_monitor_metrics = {
+            'eval loss': float(test_loss.result().numpy()),
+            'eval-accuracy':float(test_accuracy.result().numpy())
+        }
 
         # TEST LOOP
         for x in tqdm(test_data_iterator):
             distributed_test_step(x)
-
-        nmp.evaluate({'eval loss': test_loss.result(), 'eval-accuracy':test_accuracy.result()}) 
+        nmp.evaluate(eval_monitor_metrics) 
 
         if epoch % 2 == 0:
             checkpoint.save(checkpoint_prefix)
@@ -202,10 +208,8 @@ if __name__ == '__main__':
 
 
 
-
-
         test_loss.reset_states()
         train_accuracy.reset_states()
         test_accuracy.reset_states()
-
+    print(f'program exited.')
     nmp.finish_training()

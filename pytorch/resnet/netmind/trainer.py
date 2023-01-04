@@ -1,3 +1,4 @@
+from NetmindMixins.Netmind import nmp
 import pickle
 import sys
 from pathlib import Path
@@ -9,17 +10,18 @@ import random
 import shutil
 import time
 import torch
-from NetmindMixins.Netmind import nmp
+
 
 def train(train_loader, train_sampler, val_loader, model, criterion, optimizer, args, device):
-
     
     best_acc1 = 0
-    for epoch in range(nmp.cur_epoch, args.num_train_epochs):
+    epoch = nmp.cur_epoch
+    for epoch in range(epoch, args.num_train_epochs):
+
         # shuffle the training data at every epoch
         train_sampler.set_epoch(epoch)
         adjust_learning_rate(optimizer, epoch, args)
-
+    
         batch_time = AverageMeter('Time', ':6.3f')
         data_time = AverageMeter('Data', ':6.3f')
         losses = AverageMeter('Loss', ':.4e')
@@ -32,12 +34,13 @@ def train(train_loader, train_sampler, val_loader, model, criterion, optimizer, 
 
         # switch to train mode
         model.train()
+        
 
         end = time.time()
         for i, (images, target) in enumerate(train_loader):
             if nmp.should_skip_step():
-                continue
             # measure data loading time
+                continue
             data_time.update(time.time() - end)
 
             
@@ -65,10 +68,12 @@ def train(train_loader, train_sampler, val_loader, model, criterion, optimizer, 
 
             if i % args.print_freq == 0:
                 progress.display(i)
-            
-            nmp.step({"loss": loss.item()})
-        
-         # evaluate on validation set
+
+            monitor_metrics = {
+                "loss": loss.item()
+            }
+            nmp.step(monitor_metrics)
+        # evaluate on validation set
         acc1 = validate(val_loader, model, criterion, args, device)
 
         # remember best acc@1 and save checkpoint
@@ -83,6 +88,7 @@ def train(train_loader, train_sampler, val_loader, model, criterion, optimizer, 
             'best_acc1': best_acc1,
             'optimizer' : optimizer.state_dict(),
         }, is_best)
+
 
 
 def validate(val_loader, model, criterion, args, device):
@@ -101,6 +107,7 @@ def validate(val_loader, model, criterion, args, device):
     with torch.no_grad():
         end = time.time()
         for i, (images, target) in enumerate(val_loader):
+            
             images = images.cuda(device, non_blocking=True)
             target = target.cuda(device, non_blocking=True)
 
@@ -121,21 +128,21 @@ def validate(val_loader, model, criterion, args, device):
             if i % args.print_freq == 0:
                 progress.display(i)
 
-
+            monitor_metrics = {
+                "top1": "{top1.avg: .3f}".format(top1=top1),
+                "top5": "{top5.avg: .3f}".format(top5=top5)
+            }
         # TODO: this should also be done with the ProgressMeter
         print(' * Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f}'
               .format(top1=top1, top5=top5))
 
-        nmp.evaluate({"top1": "{top1.avg:.3f}".format(top1=top1), "top5": "{top5.avg:.3f}".format(top5=top5)})
-        
-
+    nmp.evaluate(monitor_metrics)
     return top1.avg
 
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
     torch.save(state, filename)
     if is_best:
-        # shutil.copyfile(filename, 'model_best.pth.tar')
-        nmp.save_pretrained(extra_dir_or_files=filename)
+        shutil.copyfile(filename, 'model_best.pth.tar')
 
 
 class AverageMeter(object):

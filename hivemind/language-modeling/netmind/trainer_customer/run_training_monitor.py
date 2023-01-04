@@ -1,3 +1,4 @@
+from NetmindMixins.Netmind import  hmp, NetmindModel, NetmindOptimizer
 #!/usr/bin/env python3
 
 import time
@@ -22,7 +23,6 @@ from hivemind.utils.logging import get_logger, use_hivemind_log_handler
 from hivemind.utils.networking import log_visible_maddrs
 from model import get_model
 
-from NetmindMixins.Netmind import nmp, hmp, NetmindModel, NetmindOptimizer
 
 import transformers
 from transformers import (
@@ -118,17 +118,8 @@ class CheckpointHandler:
             },
         ]
 
-        opt = NetmindOptimizer(
-            Lamb(
-                optimizer_grouped_parameters,
-                lr=training_args.learning_rate,
-                betas=(training_args.adam_beta1, training_args.adam_beta2),
-                eps=training_args.adam_epsilon,
-                weight_decay=training_args.weight_decay,
-                clamp_value=training_args.clamp_value,
-                debias=True,
-            )
-        )
+        opt = self.get_optimizer(optimizer_grouped_parameters, training_args)
+        opt = NetmindOptimizer(opt)
 
         scheduler = lambda opt: get_linear_schedule_with_warmup(
             opt, num_warmup_steps=training_args.warmup_steps, num_training_steps=training_args.total_steps
@@ -155,6 +146,18 @@ class CheckpointHandler:
         else:
             return False
 
+    def get_optimizer(self, optimizer_grouped_parameters, training_args):
+        opt = Lamb(
+            optimizer_grouped_parameters,
+            lr=training_args.learning_rate,
+            betas=(training_args.adam_beta1, training_args.adam_beta2),
+            eps=training_args.adam_epsilon,
+            weight_decay=training_args.weight_decay,
+            clamp_value=training_args.clamp_value,
+            debias=True,
+        )
+        return opt
+
     def save_state(self, cur_step):
         logger.info("Saving state from peers")
         self.state_averager.load_state_from_peers()
@@ -167,8 +170,8 @@ class CheckpointHandler:
             return False
 
     def upload_checkpoint(self):
-        # Upload models to netmind
         hmp.save_pretrained()
+        # Upload models to netmind
         self.previous_timestamp = time.time()
 
 
@@ -249,6 +252,6 @@ if __name__ == "__main__":
                         if checkpoint_handler.is_time_to_upload():
                             checkpoint_handler.upload_checkpoint()
         
-        hmp.step(current_step, monitor_metrics)
         logger.debug("Peer is still alive...")
         time.sleep(monitor_args.refresh_period)
+        hmp.step(current_step, monitor_metrics)

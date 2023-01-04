@@ -53,6 +53,7 @@ class CollaborativeCallback(transformers.TrainerCallback):
     ):
         logger.info("Loading state from peers")
         self.optimizer.load_state_from_peers()
+        return super().on_train_begin(args, state, control, **kwargs)
 
     def on_step_end(
         self, args: TrainingArguments, state: transformers.TrainerState, control: transformers.TrainerControl, **kwargs
@@ -100,7 +101,7 @@ class CollaborativeCallback(transformers.TrainerCallback):
 
         self.samples = local_progress.samples_accumulated
 
-        return control
+        return super().on_step_end(args, state, control, **kwargs)
 
     @torch.no_grad()
     def params_are_finite(self):

@@ -1,4 +1,3 @@
-export PLATFORM=pytorch && export USE_DDP=1 && \
 python  -m torch.distributed.run --nproc_per_node=2 --nnodes=1 \
 --node_rank=0 --master_addr="127.0.0.1" --master_port 57920 \
 train_dist.py --data="/home/protago/Xiangpeng/Netmind-examples/pytorch/data/bert" \

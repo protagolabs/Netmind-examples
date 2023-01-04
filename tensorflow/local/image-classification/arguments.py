@@ -12,16 +12,18 @@ def setup_args():
     parser.add_argument('--data', default=os.getenv("DATA_LOCATION"), type=str, required=False, help='data directory')
     parser.add_argument("--num_train_epochs", default=6, type=int)
     parser.add_argument("--save_steps", default=100, type=int)
+    parser.add_argument('--model_name_or_path', default='resnet18', )
 
     # the model training
-    parser.add_argument('--batch_size', default=64, type=int, required=False, help='training batchsize')
+    parser.add_argument('--per_device_train_batch_size', default=64, type=int, required=False, help='training batchsize')
     parser.add_argument('--val_data', default=None,  type=str, required=False, help='val data directory')
 
     # the data setting
     parser.add_argument('--input_shape', default=[224, 224, 3], type=tuple, required=False, help='training input shape')
 
     # training setting
-    parser.add_argument('--initial_learning_rate', default=0.1, type=float, required=False, help='initial learning rate')
-    parser.add_argument('--epoch_num', default=90, type=int, required=False, help='training epoch num')
+    parser.add_argument('--learning_rate', default=0.1, type=float, required=False, help='initial learning rate')
     parser.add_argument('--seed', default=1, type=int, required=False, help='training seed')
+    parser.add_argument("--warmup_steps", default=5000, type=float)
+
     return parser.parse_args()
