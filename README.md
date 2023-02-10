@@ -1,5 +1,5 @@
 # Netmind-AI
-<div id="top" align="center">
+<div id="top" align="left">
 
    Netmind-AI: An open platform for centralized and decentralized deep learning training & inference
 
