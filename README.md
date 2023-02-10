@@ -10,7 +10,7 @@
 
 
 ## Why Netmind-AI
-<div align="center">
+<div align="left">
 
    * Users can train the corresponding artificial intelligence by providing algorithms and data on the Netmind platform.
    * Netmind AI platform not only includes training resources and its own distributed traing algorithms, but also support thrid-party algorithms.
@@ -43,139 +43,18 @@ distributed training and inference in a few lines.
 
 ## Parallel Training Demo
 
-### GPT-2
-<p align="center">
-(https://arxiv.org/abs/2104.05343)
+### Language Model
+<p align="left">
+[local](https://github.com/protagolabs/Netmind-examples/tree/main/pytorch/language-modeling/local)
 </p>
 
-- Save 50% GPU resources, and 10.7% acceleration
 
-### GPT-2
-<img src="https://raw.githubusercontent.com/hpcaitech/public_assets/main/colossalai/img/GPT2.png" width=800/>
+### Resnet
 
-- 11x lower GPU memory consumption, and superlinear scaling efficiency with Tensor Parallelism
-
-<img src="https://raw.githubusercontent.com/hpcaitech/public_assets/main/colossalai/img/(updated)GPT-2.png" width=800>
-
-- 24x larger model size on the same hardware
-- over 3x acceleration
-### BERT
-<img src="https://raw.githubusercontent.com/hpcaitech/public_assets/main/colossalai/img/BERT.png" width=800/>
-
-- 2x faster training, or 50% longer sequence length
-
-### PaLM
-- [PaLM-colossalai](https://github.com/hpcaitech/PaLM-colossalai): Scalable implementation of Google's Pathways Language Model ([PaLM](https://ai.googleblog.com/2022/04/pathways-language-model-palm-scaling-to.html)).
-
-### OPT
-<img src="https://raw.githubusercontent.com/hpcaitech/public_assets/main/colossalai/img/OPT_update.png" width=800/>
-
-- [Open Pretrained Transformer (OPT)](https://github.com/facebookresearch/metaseq), a 175-Billion parameter AI language model released by Meta, which stimulates AI programmers to perform various downstream tasks and application deployments because public pretrained model weights.
-- 45% speedup fine-tuning OPT at low cost in lines. [[Example]](https://github.com/hpcaitech/ColossalAI-Examples/tree/main/language/opt) [[Online Serving]](https://github.com/hpcaitech/ColossalAI-Documentation/blob/main/i18n/en/docusaurus-plugin-content-docs/current/advanced_tutorials/opt_service.md)
-
-Please visit our [documentation](https://www.colossalai.org/) and [examples](https://github.com/hpcaitech/ColossalAI-Examples) for more details.
-
-### ViT
-<p align="center">
-<img src="https://raw.githubusercontent.com/hpcaitech/public_assets/main/colossalai/img/ViT.png" width="450" />
+<p align="left">
+[local](https://github.com/protagolabs/Netmind-examples/tree/main/pytorch/resnet/local)
 </p>
 
-- 14x larger batch size, and 5x faster training for Tensor Parallelism = 64
-
-### Recommendation System Models
-- [Cached Embedding](https://github.com/hpcaitech/CachedEmbedding), utilize software cache to train larger embedding tables with a smaller GPU memory budget.
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-## Single GPU Training Demo
-
-### GPT-2
-<p id="GPT-2-Single" align="center">
-<img src="https://raw.githubusercontent.com/hpcaitech/public_assets/main/colossalai/img/GPT2-GPU1.png" width=450/>
-</p>
-
-- 20x larger model size on the same hardware
-
-<p id="GPT-2-NVME" align="center">
-<img src="https://raw.githubusercontent.com/hpcaitech/public_assets/main/colossalai/img/GPT2-NVME.png" width=800/>
-</p>
-
-- 120x larger model size on the same hardware (RTX 3080)
-
-### PaLM
-<p id="PaLM-Single" align="center">
-<img src="https://raw.githubusercontent.com/hpcaitech/public_assets/main/colossalai/img/PaLM-GPU1.png" width=450/>
-</p>
-
-- 34x larger model size on the same hardware
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-## Inference (Energon-AI) Demo
-
-<p id="GPT-3-Inference" align="center">
-<img src="https://raw.githubusercontent.com/hpcaitech/public_assets/main/colossalai/img/inference_GPT-3.jpg" width=800/>
-</p>
-
-- [Energon-AI](https://github.com/hpcaitech/EnergonAI): 50% inference acceleration on the same hardware
-
-<p id="OPT-Serving" align="center">
-<img src="https://raw.githubusercontent.com/hpcaitech/public_assets/main/colossalai/img/OPT_serving.png" width=800/>
-</p>
-
-- [OPT Serving](https://github.com/hpcaitech/ColossalAI-Documentation/blob/main/i18n/en/docusaurus-plugin-content-docs/current/advanced_tutorials/opt_service.md): Try 175-billion-parameter OPT online services for free, without any registration whatsoever.
-
-<p id="BLOOM-Inference" align="center">
-<img src="https://raw.githubusercontent.com/hpcaitech/public_assets/main/colossalai/img/BLOOM%20Inference.PNG" width=800/>
-</p>
-
-- [BLOOM](https://github.com/hpcaitech/EnergonAI/tree/main/examples/bloom): Reduce hardware deployment costs of 176-billion-parameter BLOOM by more than 10 times.
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-## Colossal-AI in the Real World
-
-### AIGC
-Acceleration of AIGC (AI-Generated Content) models such as [Stable Diffusion v1](https://github.com/CompVis/stable-diffusion) and [Stable Diffusion v2](https://github.com/Stability-AI/stablediffusion).
-<p id="diffusion_train" align="center">
-<img src="https://raw.githubusercontent.com/hpcaitech/public_assets/main/colossalai/img/Stable%20Diffusion%20v2.png" width=800/>
-</p>
-
-- [Training](https://github.com/hpcaitech/ColossalAI/tree/main/examples/images/diffusion): Reduce Stable Diffusion memory consumption by up to 5.6x and hardware cost by up to 46x (from A100 to RTX3060).
-
-<p id="diffusion_demo" align="center">
-<img src="https://raw.githubusercontent.com/hpcaitech/public_assets/main/colossalai/img/DreamBooth.png" width=800/>
-</p>
-
-- [DreamBooth Fine-tuning](https://github.com/hpcaitech/ColossalAI/tree/main/examples/images/dreambooth): Personalize your model using just 3-5 images of the desired subject.
-
-<p id="inference" align="center">
-<img src="https://raw.githubusercontent.com/hpcaitech/public_assets/main/colossalai/img/Stable%20Diffusion%20Inference.jpg" width=800/>
-</p>
-
-- [Inference](https://github.com/hpcaitech/ColossalAI/tree/main/examples/images/diffusion): Reduce inference GPU memory consumption by 2.5x.
-
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-### Biomedicine
-Acceleration of [AlphaFold Protein Structure](https://alphafold.ebi.ac.uk/)
-
-<p id="FastFold" align="center">
-<img src="https://raw.githubusercontent.com/hpcaitech/public_assets/main/colossalai/img/FastFold.jpg" width=800/>
-</p>
-
-- [FastFold](https://github.com/hpcaitech/FastFold): accelerating training and inference on GPU Clusters, faster data processing, inference sequence containing more than 10000 residues.
-
-<p id="xTrimoMultimer" align="center">
-<img src="https://raw.githubusercontent.com/hpcaitech/public_assets/main/colossalai/img/xTrimoMultimer_Table.jpg" width=800/>
-</p>
-
-- [xTrimoMultimer](https://github.com/biomap-research/xTrimoMultimer): accelerating structure prediction of protein monomers and multimer by 11x.
-
-
-<p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Installation
 
