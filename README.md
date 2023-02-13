@@ -32,9 +32,9 @@
     </ul>
   </li>
   <li>
-    <a href="#Parallel Training Demo">Parallel Training Demo</a> 
+    <a href="#Parallel-Training-Demo">Parallel Training Demo</a> 
     <ul>
-    <li><a href="#Language Model">Language Model</a></li>
+    <li><a href="#Language-Model">Language Model</a></li>
     </ul>
     <ul>
     <li><a href="#ResNet">ResNet</a></li>
@@ -43,7 +43,7 @@
   <li>
     <a href="#Installation">Installation</a> 
     <ul>
-    <li><a href="#Download From Source">Download From Source</a></li>
+    <li><a href="#Download-From-Source">Download From Source</a></li>
     </ul>
   </li>
 </ul>
