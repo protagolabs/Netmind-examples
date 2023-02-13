@@ -120,6 +120,7 @@ class DatasetArguments:
 
 @dataclass
 class ModelTrainingArguments(TrainingArguments):
+    num_train_epochs: int = 3
     dataloader_num_workers: int = 4
     per_device_train_batch_size: int = 16
     per_device_eval_batch_size: int = 4
@@ -137,7 +138,6 @@ class ModelTrainingArguments(TrainingArguments):
     fp16: bool = True
     fp16_opt_level: str = "O2"
     do_train: bool = True
-    do_eval: bool = False
 
     logging_steps: int = 100
     save_total_limit: int = 2
@@ -145,3 +145,6 @@ class ModelTrainingArguments(TrainingArguments):
 
     output_dir: str = "outputs"
     max_steps: int = 125_0000  # meant the total training steps
+
+
+

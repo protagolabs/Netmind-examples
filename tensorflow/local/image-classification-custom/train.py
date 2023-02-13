@@ -170,6 +170,7 @@ if __name__ == '__main__':
         for x in tqdm(test_data_iterator):
             distributed_test_step(x)
 
+
         if epoch % 2 == 0:
             checkpoint.save(checkpoint_prefix)
 

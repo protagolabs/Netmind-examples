@@ -33,14 +33,17 @@ class AverageMeter(object):
         fmtstr = '{name} {val' + self.fmt + '} ({avg' + self.fmt + '})'
         return fmtstr.format(**self.__dict__)
 
-def train(train_loader, val_loader, model, criterion, optimizer, training_args, collaborative_call,device):
-    
+def train(dataloader, val_loader, model, criterion, optimizer, training_args, collaborative_call,device):
+    max_clip_norm = 1.0
     # switch to train mode
     model.train()
 
+    num_update_steps_per_epoch = len(dataloader) // training_args.gradient_accumulation_steps
+    num_update_steps_per_epoch = max(num_update_steps_per_epoch, 1)
+
     for epoch in range(training_args.num_train_epochs):
         adjust_learning_rate(optimizer, epoch, training_args)
-        for i, (images, target) in enumerate(train_loader):
+        for i, (images, target) in enumerate(dataloader):
 
             images = images.cuda(device, non_blocking=True)
             target = target.cuda(device, non_blocking=True)
@@ -96,7 +99,6 @@ def validate(val_loader, model, criterion, device):
         # TODO: this should also be done with the ProgressMeter
         print(' * Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f}'
               .format(top1=top1, top5=top5))
-
 
     return top1.avg, top5.avg
 

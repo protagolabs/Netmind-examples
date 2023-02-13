@@ -12,6 +12,12 @@ args = setup_args()
 logger = logging.getLogger(__name__)
 
 
+class CustomTrainerCallback(tf.keras.callbacks.Callback):
+    # Hugging Face models have a save_pretrained() method that saves both the weights and the necessary
+    # metadata to allow them to be loaded as a pretrained model in future. This is a simple Keras callback
+    # that saves the model with this method after each epoch.
+    def __init__(self, batches_per_epoch, args=args):
+        super().__init__(batches_per_epoch, args)
 
 if __name__ == '__main__':
 
@@ -25,18 +31,18 @@ if __name__ == '__main__':
 
     n_workers = len(json.loads(os.environ['TF_CONFIG']).get('cluster', {}).get('worker'))
     logger.info(f'c.tf_config : {c.tf_config}')
-    global_batch_size = args.batch_size * n_workers
+    global_batch_size = args.per_device_train_batch_size * n_workers
 
     multi_worker_mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
 
     train_ds = tf.keras.preprocessing.image_dataset_from_directory(
-        args.data,
+        args.data + "/train",
         seed=args.seed,
         image_size=args.input_shape[:2],
         batch_size=global_batch_size,
     )
     val_ds = tf.keras.preprocessing.image_dataset_from_directory(
-        args.val_data,
+        args.data + "/val",
         seed=args.seed,
         image_size=args.input_shape[:2],
         batch_size=global_batch_size,
@@ -70,7 +76,7 @@ if __name__ == '__main__':
         model.summary()
 
         model.compile(
-            optimizer=tf.keras.optimizers.SGD(args.initial_learning_rate *  n_workers),
+            optimizer=tf.keras.optimizers.SGD(args.learning_rate *  n_workers),
             loss=tf.losses.SparseCategoricalCrossentropy(from_logits=False),
             metrics=tf.keras.metrics.SparseCategoricalAccuracy()
         )
@@ -113,9 +119,9 @@ if __name__ == '__main__':
 
     history = model.fit(
         train_data_iterator,
-        validation_data=test_data_iterator,
+        validation_data=test_data_iterator if hasattr(args, "do_eval") and args.do_eval else None,
         steps_per_epoch= train_num  // global_batch_size , 
-        validation_steps= test_num // global_batch_size ,
-        epochs=args.epoch_num,
+        validation_steps= test_num // global_batch_size if hasattr(args, "do_eval") and args.do_eval else None,
+        epochs=args.num_train_epochs,
         callbacks=all_callbacks
     )

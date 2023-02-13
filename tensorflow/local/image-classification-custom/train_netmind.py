@@ -26,11 +26,9 @@ if __name__ == '__main__':
 
     n_workers = len(json.loads(os.environ['TF_CONFIG']).get('cluster', {}).get('worker'))
     logger.info(f'c.tf_config : {c.tf_config}')
-    global_batch_size = args.batch_size * n_workers
+    global_batch_size = args.per_device_train_batch_size * n_workers
 
     mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
-
-
 
      # you can use smaller data for code checking like food-101 dataset
     train_ds = tf.keras.preprocessing.image_dataset_from_directory(
@@ -112,7 +110,7 @@ if __name__ == '__main__':
         model.summary()
 
 
-        optimizer = tf.keras.optimizers.SGD(args.initial_learning_rate *  n_workers)
+        optimizer = tf.keras.optimizers.SGD(args.learning_rate *  n_workers)
 
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=model)
 
@@ -163,7 +161,7 @@ if __name__ == '__main__':
 
     # epochs_trained = nmp.cur_epoch
 
-    for epoch in range(args.epoch_num):
+    for epoch in range(args.num_train_epochs):
         # TRAIN LOOP
         total_loss = 0.0
         num_batches = 0
@@ -172,8 +170,17 @@ if __name__ == '__main__':
             total_loss +=loss_tmp
             num_batches += 1
 
-        train_loss = total_loss / num_batches
-        # netmind relatived
+            train_loss = total_loss / train_num
+            # netmind relatived
+            #print(f'loss : {float(train_loss.numpy())} ')
+            train_monitor_metrics = {
+                "loss": float(train_loss.numpy())
+            }
+
+        eval_monitor_metrics = {
+            'eval loss': float(test_loss.result().numpy()),
+            'eval-accuracy':float(test_accuracy.result().numpy())
+        }
 
         # TEST LOOP
         for x in tqdm(test_data_iterator):
@@ -191,9 +198,7 @@ if __name__ == '__main__':
 
 
 
-
-
         test_loss.reset_states()
         train_accuracy.reset_states()
         test_accuracy.reset_states()
-
+    print(f'program exited.')

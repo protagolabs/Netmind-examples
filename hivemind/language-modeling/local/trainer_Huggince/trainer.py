@@ -44,7 +44,7 @@ def train(tokenized_datasets, model, tokenizer, training_args, data_collator, op
         args=training_args,
         tokenizer=tokenizer,
         data_collator=data_collator,
-        train_dataset=tokenized_datasets if training_args.do_train else None,
+        train_dataset=tokenized_datasets['train'] if training_args.do_train else None,
         optimizers=(optimizer, NoOpScheduler(optimizer)),
         callbacks=[collaborative_call],
     )
