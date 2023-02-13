@@ -8,7 +8,7 @@
 
 ## Table of Contents
 <ul>
- <li><a href="#Why Netmind-AI">Why Netmind-AI</a> </li>
+ <li><a href="#Why-Netmind-AI">Why Netmind-AI</a> </li>
  <li><a href="#Features">Features</a> </li>
   <li>
     <a href="#Netmind-AI with Pytorch">Netmind-AI with Pytorch</a>
