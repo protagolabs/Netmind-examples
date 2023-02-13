@@ -100,7 +100,7 @@ https://github.com/protagolabs/Netmind-examples/tree/main/pytorch/resnet/local
 
 > The version of Netmind-AI will be in line with the main branch of the repository. Feel free to raise an issue if you encounter any problem. :)
 ```shell
-# please add api installation of "代码自动化" here
+# please add api installation of "NetMind-Mixin" here
 ```
 
 
