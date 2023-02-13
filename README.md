@@ -1,13 +1,15 @@
 # Netmind-AI
 <div id="top" align="left">
-
    Netmind-AI: An open platform for centralized and decentralized deep learning training & inference
-
 </div>
 
 ## Latest News
 * [2023/01] [Netmind websited online](https://private-web.protago-dev.com/#/home)
 
+## Table of Contents
+<ul>
+ <li><a href="#Why Netmind-AI">Why Netmind-AI</a> </li>
+</ul>
 
 ## Why Netmind-AI
 <div align="left">
@@ -33,8 +35,7 @@ distributed training and inference in a few lines.
  
 
 - Decentralized distributed traning
-  - [Hivemind](https://arxiv.org/abs/2002.04013)
-  - [Hivemind](https://arxiv.org/abs/2103.03239)
+  - Hivemind [1](https://arxiv.org/abs/2002.04013), [2](https://arxiv.org/abs/2103.03239)
 
 - Friendly Usage
   - Codelab example that easy to deploy or modified.
