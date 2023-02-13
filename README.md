@@ -124,7 +124,7 @@ pip install requirements.txt
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-## Use Docker
+<!-- ## Use Docker
 
 ### Pull from DockerHub
 
@@ -135,7 +135,7 @@ You can directly pull the docker image from our [DockerHub page](https://hub.doc
 
 Run the following command to build a docker image from Dockerfile provided.
 
-> Building Colossal-AI from scratch requires GPU support, you need to use Nvidia Docker Runtime as the default when doing `docker build`. More details can be found [here](https://stackoverflow.com/questions/59691207/docker-build-with-nvidia-runtime).
+> Building Colossal-AI from scratch requires GPU support, you need to use Nvidia Docker Runtime as the default when doing `docker build`. More details can be found [here](https://stackoverflow.com/questions/59691207/docker-build-with-nvidia-runtime). -->
 <!-- > We recommend you install Colossal-AI from our [project page](https://www.colossalai.org) directly.
 
 
@@ -150,12 +150,12 @@ Run the following command to start the docker container in interactive mode.
 docker run -ti --gpus all --rm --ipc=host colossalai bash
 ``` -->
 
-<p align="right">(<a href="#top">back to top</a>)</p>
+<!-- <p align="right">(<a href="#top">back to top</a>)</p> -->
 
-## Community
+<!-- ## Community -->
 
 
 
-## Contributing
+<!-- ## Contributing -->
 
 
