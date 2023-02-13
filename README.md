@@ -58,7 +58,7 @@ distributed training and inference in a few lines.
 
 ## Installation
 
-### Install from PyPI
+<!-- ### Install from PyPI
 
 You can easily install Colossal-AI with the following command. **By defualt, we do not build PyTorch extensions during installation.**
 
@@ -79,26 +79,31 @@ Installation can be made via
 
 ```bash
 pip install colossalai-nightly
-```
+``` -->
 
 ### Download From Source
 
-> The version of Colossal-AI will be in line with the main branch of the repository. Feel free to raise an issue if you encounter any problem. :)
+> The version of Netmind-AI will be in line with the main branch of the repository. Feel free to raise an issue if you encounter any problem. :)
 
 ```shell
-git clone https://github.com/hpcaitech/ColossalAI.git
-cd ColossalAI
+git clone https://github.com/protagolabs/Netmind-examples.git
+cd Netmind-examples
 
-# install colossalai
-pip install .
+# install Netmind-AI with Pytorch
+cd pytorch
+pip install requirements.txt
+
+
+# install Netmind-AI with Tensorflow
+cd tensorflow
+pip install requirements.txt
+
+
+# install Netmind-AI with Hivemind
+cd hivemind
+pip install requirements.txt
 ```
 
-By default, we do not compile CUDA/C++ kernels. ColossalAI will build them during runtime.
-If you want to install and enable CUDA kernel fusion (compulsory installation when using fused optimizer):
-
-```shell
-CUDA_EXT=1 pip install .
-```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -106,7 +111,7 @@ CUDA_EXT=1 pip install .
 
 ### Pull from DockerHub
 
-You can directly pull the docker image from our [DockerHub page](https://hub.docker.com/r/hpcaitech/colossalai). The image is automatically uploaded upon release.
+You can directly pull the docker image from our [DockerHub page](https://hub.docker.com). The image is automatically uploaded upon release.
 
 
 ### Build On Your Own
@@ -114,7 +119,7 @@ You can directly pull the docker image from our [DockerHub page](https://hub.doc
 Run the following command to build a docker image from Dockerfile provided.
 
 > Building Colossal-AI from scratch requires GPU support, you need to use Nvidia Docker Runtime as the default when doing `docker build`. More details can be found [here](https://stackoverflow.com/questions/59691207/docker-build-with-nvidia-runtime).
-> We recommend you install Colossal-AI from our [project page](https://www.colossalai.org) directly.
+<!-- > We recommend you install Colossal-AI from our [project page](https://www.colossalai.org) directly.
 
 
 ```bash
@@ -126,7 +131,7 @@ Run the following command to start the docker container in interactive mode.
 
 ```bash
 docker run -ti --gpus all --rm --ipc=host colossalai bash
-```
+``` -->
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
