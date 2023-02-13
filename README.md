@@ -1,13 +1,52 @@
 # Netmind-AI
 <div id="top" align="left">
-
    Netmind-AI: An open platform for centralized and decentralized deep learning training & inference
-
 </div>
 
 ## Latest News
 * [2023/01] [Netmind websited online](https://private-web.protago-dev.com/#/home)
 
+## Table of Contents
+<ul>
+ <li><a href="#Why-Netmind-AI">Why Netmind-AI</a> </li>
+ <li><a href="#Features">Features</a> </li>
+  <li>
+    <a href="#Netmind-AI with Pytorch">Netmind-AI with Pytorch</a>
+    <ul>
+      <li><a href="#BERT">BERT</a></li>
+      <li><a href="#ResNet">ResNet</a></li>
+    </ul>
+  </li>
+  <li>
+    <a href="#Netmind-AI with Tensorflow">Netmind-AI with Tensorflow</a>
+    <ul>
+      <li><a href="#BERT">BERT</a></li>
+      <li><a href="#ResNet">ResNet</a></li>
+    </ul>
+  </li>
+  <li>
+    <a href="#Netmind-AI with Hivemind">Netmind-AI with Hivemind</a>
+    <ul>
+      <li><a href="#BERT">BERT</a></li>
+      <li><a href="#ResNet">ResNet</a></li>
+    </ul>
+  </li>
+  <li>
+    <a href="#Parallel-Training-Demo">Parallel Training Demo</a> 
+    <ul>
+    <li><a href="#Language-Model">Language Model</a></li>
+    </ul>
+    <ul>
+    <li><a href="#ResNet">ResNet</a></li>
+    </ul>
+  </li>
+  <li>
+    <a href="#Installation">Installation</a> 
+    <ul>
+    <li><a href="#Download-From-Source">Download From Source</a></li>
+    </ul>
+  </li>
+</ul>
 
 ## Why Netmind-AI
 <div align="left">
@@ -33,8 +72,7 @@ distributed training and inference in a few lines.
  
 
 - Decentralized distributed traning
-  - [Hivemind](https://arxiv.org/abs/2002.04013)
-  - [Hivemind](https://arxiv.org/abs/2103.03239)
+  - Hivemind [1](https://arxiv.org/abs/2002.04013), [2](https://arxiv.org/abs/2103.03239)
 
 - Friendly Usage
   - Codelab example that easy to deploy or modified.
@@ -45,41 +83,18 @@ distributed training and inference in a few lines.
 
 ### Language Model
 <p align="left">
-[local](https://github.com/protagolabs/Netmind-examples/tree/main/pytorch/language-modeling/local)
+https://github.com/protagolabs/Netmind-examples/tree/main/pytorch/language-modeling/local
 </p>
 
 
-### Resnet
+### ResNet
 
 <p align="left">
-[local](https://github.com/protagolabs/Netmind-examples/tree/main/pytorch/resnet/local)
+https://github.com/protagolabs/Netmind-examples/tree/main/pytorch/resnet/local
 </p>
 
 
 ## Installation
-
-<!-- ### Install from PyPI
-
-You can easily install Colossal-AI with the following command. **By defualt, we do not build PyTorch extensions during installation.**
-
-```bash
-pip install colossalai
-```
-
-However, if you want to build the PyTorch extensions during installation, you can set `CUDA_EXT=1`.
-
-```bash
-CUDA_EXT=1 pip install colossalai
-```
-
-**Otherwise, CUDA kernels will be built during runtime when you actually need it.**
-
-We also keep release the nightly version to PyPI on a weekly basis. This allows you to access the unreleased features and bug fixes in the main branch.
-Installation can be made via
-
-```bash
-pip install colossalai-nightly
-``` -->
 
 ### Download From Source
 
@@ -96,7 +111,9 @@ pip install requirements.txt
 
 # install Netmind-AI with Tensorflow
 cd tensorflow
-pip install requirements.txt
+bash conda_install.sh (optional)
+bash tf_install.sh
+
 
 
 # install Netmind-AI with Hivemind
@@ -107,7 +124,7 @@ pip install requirements.txt
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-## Use Docker
+<!-- ## Use Docker
 
 ### Pull from DockerHub
 
@@ -118,7 +135,7 @@ You can directly pull the docker image from our [DockerHub page](https://hub.doc
 
 Run the following command to build a docker image from Dockerfile provided.
 
-> Building Colossal-AI from scratch requires GPU support, you need to use Nvidia Docker Runtime as the default when doing `docker build`. More details can be found [here](https://stackoverflow.com/questions/59691207/docker-build-with-nvidia-runtime).
+> Building Colossal-AI from scratch requires GPU support, you need to use Nvidia Docker Runtime as the default when doing `docker build`. More details can be found [here](https://stackoverflow.com/questions/59691207/docker-build-with-nvidia-runtime). -->
 <!-- > We recommend you install Colossal-AI from our [project page](https://www.colossalai.org) directly.
 
 
@@ -133,12 +150,12 @@ Run the following command to start the docker container in interactive mode.
 docker run -ti --gpus all --rm --ipc=host colossalai bash
 ``` -->
 
-<p align="right">(<a href="#top">back to top</a>)</p>
+<!-- <p align="right">(<a href="#top">back to top</a>)</p> -->
 
-## Community
+<!-- ## Community -->
 
 
 
-## Contributing
+<!-- ## Contributing -->
 
 
