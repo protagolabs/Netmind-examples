@@ -4,17 +4,11 @@ We develop the netmind platform in tensorflow2
 
 ```bash
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-```
 
-```bash
 bash Miniconda3-latest-Linux-x86_64.sh
-```
 
-```bash
 source ~/.bashrc
-```
 
-```bash
 conda update --force conda
 ```
 #
