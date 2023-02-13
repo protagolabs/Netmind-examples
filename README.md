@@ -104,7 +104,7 @@ https://github.com/protagolabs/Netmind-examples/tree/main/pytorch/resnet/local
 ```
 
 
-> Developing based on more examples
+> Developing based on more Netmind-AI examples
 ```shell
 git clone https://github.com/protagolabs/Netmind-examples.git
 cd Netmind-examples
