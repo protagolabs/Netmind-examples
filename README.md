@@ -58,29 +58,6 @@ distributed training and inference in a few lines.
 
 ## Installation
 
-<!-- ### Install from PyPI
-
-You can easily install Colossal-AI with the following command. **By defualt, we do not build PyTorch extensions during installation.**
-
-```bash
-pip install colossalai
-```
-
-However, if you want to build the PyTorch extensions during installation, you can set `CUDA_EXT=1`.
-
-```bash
-CUDA_EXT=1 pip install colossalai
-```
-
-**Otherwise, CUDA kernels will be built during runtime when you actually need it.**
-
-We also keep release the nightly version to PyPI on a weekly basis. This allows you to access the unreleased features and bug fixes in the main branch.
-Installation can be made via
-
-```bash
-pip install colossalai-nightly
-``` -->
-
 ### Download From Source
 
 > The version of Netmind-AI will be in line with the main branch of the repository. Feel free to raise an issue if you encounter any problem. :)
@@ -96,7 +73,9 @@ pip install requirements.txt
 
 # install Netmind-AI with Tensorflow
 cd tensorflow
-pip install requirements.txt
+bash conda_install.sh (optional)
+bash tf_install.sh
+
 
 
 # install Netmind-AI with Hivemind
