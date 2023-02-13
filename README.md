@@ -9,6 +9,43 @@
 ## Table of Contents
 <ul>
  <li><a href="#Why Netmind-AI">Why Netmind-AI</a> </li>
+ <li><a href="#Features">Features</a> </li>
+  <li>
+    <a href="#Netmind-AI with Pytorch">Netmind-AI with Pytorch</a>
+    <ul>
+      <li><a href="#BERT">BERT</a></li>
+      <li><a href="#ResNet">ResNet</a></li>
+    </ul>
+  </li>
+  <li>
+    <a href="#Netmind-AI with Tensorflow">Netmind-AI with Tensorflow</a>
+    <ul>
+      <li><a href="#BERT">BERT</a></li>
+      <li><a href="#ResNet">ResNet</a></li>
+    </ul>
+  </li>
+  <li>
+    <a href="#Netmind-AI with Hivemind">Netmind-AI with Hivemind</a>
+    <ul>
+      <li><a href="#BERT">BERT</a></li>
+      <li><a href="#ResNet">ResNet</a></li>
+    </ul>
+  </li>
+  <li>
+    <a href="#Parallel Training Demo">Parallel Training Demo</a> 
+    <ul>
+    <li><a href="#Language Model">Language Model</a></li>
+    </ul>
+    <ul>
+    <li><a href="#ResNet">ResNet</a></li>
+    </ul>
+  </li>
+  <li>
+    <a href="#Installation">Installation</a> 
+    <ul>
+    <li><a href="#Download From Source">Download From Source</a></li>
+    </ul>
+  </li>
 </ul>
 
 ## Why Netmind-AI
@@ -46,14 +83,14 @@ distributed training and inference in a few lines.
 
 ### Language Model
 <p align="left">
-[local](https://github.com/protagolabs/Netmind-examples/tree/main/pytorch/language-modeling/local)
+https://github.com/protagolabs/Netmind-examples/tree/main/pytorch/language-modeling/local
 </p>
 
 
-### Resnet
+### ResNet
 
 <p align="left">
-[local](https://github.com/protagolabs/Netmind-examples/tree/main/pytorch/resnet/local)
+https://github.com/protagolabs/Netmind-examples/tree/main/pytorch/resnet/local
 </p>
 
 
