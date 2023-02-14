@@ -99,7 +99,12 @@ https://github.com/protagolabs/Netmind-examples/tree/main/pytorch/resnet/local
 ### Download From Source
 
 > The version of Netmind-AI will be in line with the main branch of the repository. Feel free to raise an issue if you encounter any problem. :)
+```shell
+# please add api installation of "NetMind-Mixin" here
+```
 
+
+> Developing based on more Netmind-AI examples
 ```shell
 git clone https://github.com/protagolabs/Netmind-examples.git
 cd Netmind-examples
