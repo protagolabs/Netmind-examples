@@ -112,7 +112,7 @@ cd Netmind-examples
 
 # install Netmind-AI with Pytorch
 cd pytorch
-pip install requirements.txt
+pip install -r requirements.txt
 
 
 # install Netmind-AI with Tensorflow
@@ -124,7 +124,7 @@ bash tf_install.sh
 
 # install Netmind-AI with Hivemind
 cd hivemind
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 
 
