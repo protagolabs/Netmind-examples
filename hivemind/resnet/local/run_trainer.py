@@ -94,7 +94,7 @@ def main():
     cudnn.benchmark = True
 
     # Data loading code
-    train_loader, val_loader = get_data(dataset_args,training_args)
+    train_loader, val_loader = get_data(dataset_args, training_args)
 
     # define optimzier and callback
     optimizer, collaborative_call = get_optimizer(model, training_args, collaboration_args, averager_args, tracker_args)
