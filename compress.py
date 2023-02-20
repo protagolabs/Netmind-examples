@@ -19,7 +19,7 @@ compress_dict=[
         {"tensorflow/local": ("image-classification", "tf-resnet-trainer-raw.tar.gz")}
 ]
 
-copy_dir = "/Users/yang.li/Desktop/example"
+copy_dir = ""
 root_dir = os.getcwd()
 
 for info in compress_dict:
