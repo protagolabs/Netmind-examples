@@ -58,7 +58,9 @@ def train(dataloader, val_loader, model, criterion, optimizer, training_args, co
             # gradient clip
             clip_grad_norm_(model.parameters(), training_args.max_grad_norm)
             optimizer.step()
-
+            monitor_metrics = {
+                "loss": loss.item()
+            }
             # at the end of the step: on_step_end
             collaborative_call.on_step_end(loss=loss.item())
         

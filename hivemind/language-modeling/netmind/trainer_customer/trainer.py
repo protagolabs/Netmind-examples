@@ -53,9 +53,12 @@ def train(tokenized_datasets, model, tokenizer, training_args, data_collator, op
             # free might_accumulatd tensors for OOM
             del outputs, batch
 
+            monitor_metrics = {
+                "loss" : loss.item()
+            }
             # at the end of the step: on_step_end
             collaborative_call.on_step_end(loss=loss.item())
-            if htp.on_step_end():
+            if htp.on_step_end(monitor_metrics):
                 # shutdown optimizer
                 if hasattr(optimizer, "is_alive") and optimizer.is_alive():
                     optimizer.shutdown()
