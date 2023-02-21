@@ -104,6 +104,13 @@ git clone https://github.com/protagolabs/NetMind-Mixin-Runtime.git
 cd NetMind-Mixin-Runtime && pip install ./
 export PYTHONPATH=$(pwd)
 ```
+Also, you should set PLATFORM environment variable before run "netmind" version training code.
+For example
+```shell
+export PLATFORM=pytorch && Netmind-examples/pytorch/language-modeling/netmind/trainer_Huggince/run_lm.sh
+export PLATFORM=tensorflow && Netmind-examples/tensorflow/netmind/language-modeling/multi_run_0.sh
+export PLATFORM=hivemind && Netmind-examples/hivemind/language-modeling/netmind/trainer_Huggince/run_trainer0.sh
+```
 
 
 > Developing based on more Netmind-AI examples
