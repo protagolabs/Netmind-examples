@@ -102,6 +102,7 @@ https://github.com/protagolabs/Netmind-examples/tree/main/pytorch/resnet/local
 ```shell
 git clone https://github.com/protagolabs/NetMind-Mixin-Runtime.git
 cd NetMind-Mixin-Runtime && pip install ./
+export PYTHONPATH=$(pwd)
 ```
 
 
