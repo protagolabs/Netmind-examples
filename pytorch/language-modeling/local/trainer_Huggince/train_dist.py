@@ -1,16 +1,12 @@
-import transformers
 import torch
 from tqdm import tqdm
 from transformers import HfArgumentParser
 from transformers import AutoModelForCausalLM, DataCollatorForLanguageModeling
-import matplotlib.pyplot as plt
 from model import get_model
 from data import get_data
 from optimizer import get_optimizer
-#from train import train
 from trainer import train
 import logging
-#from arguments import setup_args
 from arguments import ModelTrainingArguments
 tqdm.pandas()
 

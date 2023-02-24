@@ -14,7 +14,6 @@ from optimizer import get_optimizer
 from trainer import train
 
 
-
 def main(args):
     assert (torch.cuda.is_available())
 
@@ -28,7 +27,7 @@ def main(args):
     train_loader = DataLoader(
         train_dataset, batch_size=args.per_device_train_batch_size, shuffle=(train_sampler is None),
         num_workers=args.workers, pin_memory=True, sampler=train_sampler)
-    
+
     val_loader = DataLoader(
         val_datset,
         batch_size=args.per_device_train_batch_size, shuffle=False,
@@ -44,13 +43,12 @@ def main(args):
         torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank], output_device=args.local_rank)
     )
 
-
     # wait until data/model has loaded
     dist.barrier()
 
     # Prepare optimizer
 
-    optimizer = NetmindOptimizer(get_optimizer(ddp_model,args))
+    optimizer = NetmindOptimizer(get_optimizer(ddp_model, args))
     # define loss function (criterion) and optimizer
     nmp.init_train_bar(total_epoch=args.num_train_epochs, step_per_epoch=len(train_loader))
     criterion = nn.CrossEntropyLoss()
@@ -60,7 +58,7 @@ def main(args):
     # start train
     train(train_loader, train_sampler, val_loader, model, criterion, optimizer, args, device)
 
-    
+
 if __name__ == '__main__':
     try:
         args = setup_args()
@@ -69,8 +67,8 @@ if __name__ == '__main__':
         main(args)
     except Exception as e:
         import traceback
+
         traceback.print_exc()
         exit(1)
 
     nmp.finish_training()
-
