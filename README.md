@@ -102,7 +102,7 @@ https://github.com/protagolabs/Netmind-examples/tree/main/pytorch/resnet/local
 ```shell
 pip install https://github.com/protagolabs/NetMind-Mixin-Runtime
 ```
-Please notice that this library was built for running on linux using python3.8. It can not be used on other platform or with other python version.
+Please notice that this library was built for linux with python3.8. It can not be used on other platform or with other python version.
 Also, you should set PLATFORM environment variable before run "netmind" version training code.
 For example
 ```shell
