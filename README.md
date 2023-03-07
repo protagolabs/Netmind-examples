@@ -100,10 +100,9 @@ https://github.com/protagolabs/Netmind-examples/tree/main/pytorch/resnet/local
 
 > The version of Netmind-AI will be in line with the main branch of the repository. Feel free to raise an issue if you encounter any problem. :)
 ```shell
-git clone https://github.com/protagolabs/NetMind-Mixin-Runtime.git
-cd NetMind-Mixin-Runtime && pip install ./
-export PYTHONPATH=$(pwd)
+pip install https://github.com/protagolabs/NetMind-Mixin-Runtime
 ```
+Please notice that this library was built for running on linux using python3.8. It can not be used on other platform or with other python version.
 Also, you should set PLATFORM environment variable before run "netmind" version training code.
 For example
 ```shell
