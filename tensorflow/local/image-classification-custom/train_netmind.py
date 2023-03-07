@@ -1,12 +1,12 @@
 import os
 import tensorflow as tf
-import config as c
 from arguments import setup_args
 import logging
 from tqdm import tqdm
 
 import json
 import config as c
+
 
 args = setup_args()
 
