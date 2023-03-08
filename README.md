@@ -124,8 +124,7 @@ pip install -r requirements.txt
 
 # install Netmind-AI with Tensorflow
 cd tensorflow
-bash conda_install.sh (optional)
-bash tf_install.sh
+# Please check the ReadMe.md in "tensorflow" subdir
 
 
 
