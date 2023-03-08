@@ -100,8 +100,15 @@ https://github.com/protagolabs/Netmind-examples/tree/main/pytorch/resnet/local
 
 > The version of Netmind-AI will be in line with the main branch of the repository. Feel free to raise an issue if you encounter any problem. :)
 ```shell
-git clone https://github.com/protagolabs/NetMind-Mixin-Runtime.git
-cd NetMind-Mixin-Runtime && pip install ./
+pip install git+https://github.com/protagolabs/NetMind-Mixin-Runtime
+```
+Please notice that this library was built for linux with python3.8. It can not be used on other platform or with other python version.
+Also, you should set PLATFORM environment variable before run "netmind" version training code.
+For example
+```shell
+export PLATFORM=pytorch && Netmind-examples/pytorch/language-modeling/netmind/trainer_Huggince/run_lm.sh
+export PLATFORM=tensorflow && Netmind-examples/tensorflow/netmind/language-modeling/multi_run_0.sh
+export PLATFORM=hivemind && Netmind-examples/hivemind/language-modeling/netmind/trainer_Huggince/run_trainer0.sh
 ```
 
 
@@ -112,7 +119,7 @@ cd Netmind-examples
 
 # install Netmind-AI with Pytorch
 cd pytorch
-pip install requirements.txt
+pip install -r requirements.txt
 
 
 # install Netmind-AI with Tensorflow
@@ -122,7 +129,7 @@ pip install requirements.txt
 
 # install Netmind-AI with Hivemind
 cd hivemind
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 
 
