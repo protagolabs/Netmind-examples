@@ -68,9 +68,7 @@ if __name__ == '__main__':
     test_num = len(val_ds.file_paths)
     category_num = len(train_ds.class_names)
 
-    #train_ds = train_ds.cache().repeat().prefetch(tf.data.AUTOTUNE)
     train_ds = train_ds.prefetch(tf.data.AUTOTUNE)
-    val_ds = val_ds.cache()
 
     # Create a checkpoint directory to store the checkpoints.
     checkpoint_dir = './tb_logdir'
