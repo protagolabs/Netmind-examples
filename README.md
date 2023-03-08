@@ -119,6 +119,7 @@ pip install requirements.txt
 cd tensorflow
 bash conda_install.sh (optional)
 bash tf_install.sh
+# you need to add the cuda to environment, please check the ReadMe.md in "tensorflow" subdir
 
 
 
