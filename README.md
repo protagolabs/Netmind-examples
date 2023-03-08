@@ -123,7 +123,6 @@ pip install -r requirements.txt
 
 
 # install Netmind-AI with Tensorflow
-cd tensorflow
 # Please check the ReadMe.md in "tensorflow" subdir
 
 
