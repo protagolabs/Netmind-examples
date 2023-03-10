@@ -32,10 +32,12 @@ conda install -c anaconda cudnn==8.2.1 cudatoolkit==11.3.1
 ```bash
 nano ~/.bashrc
 ```
-* add the following cuda/cudnn path to the end, change "your_home_dir".
+* add the following cuda/cudnn path to the end, change `YOUR_HOME_DIR` to your home directory
 ```
-export PATH=/your_home_dir/miniconda3/envs/netmind-tf/lib:${PATH:+:${PATH}}
-export LD_LIBRARY_PATH=/your_home_dir/miniconda3/envs/netmind-tf/lib:${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+# change YOUR_HOME_DIR to your home directory
+export YOUR_HOME_DIR=/home/xxx/
+export PATH=$YOUR_HOME_DIR/miniconda3/envs/netmind-tf/lib:${PATH:+:${PATH}}
+export LD_LIBRARY_PATH=$YOUR_HOME_DIR/miniconda3/envs/netmind-tf/lib:${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 ```
 
 * load again
