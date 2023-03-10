@@ -59,7 +59,7 @@ if __name__ == '__main__':
     test_num = len(val_ds.file_paths)
     category_num = len(train_ds.class_names)
 
-    train_ds = train_ds.prefetch(tf.data.AUTOTUNE)
+    train_ds = train_ds.repeat().prefetch(tf.data.AUTOTUNE)
 
 # First, we create the model and optimizer inside the strategy's scope. This ensures that any variables created with the model and optimizer are mirrored variables.
 
