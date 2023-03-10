@@ -100,7 +100,7 @@ if __name__ == '__main__':
         max_seq_length = min(max_seq_length, tokenizer.model_max_length)
         
     with strategy.scope():
-        # # region Prepare model
+        # region Prepare model
         if checkpoint is not None:
             model = TFAutoModelForMaskedLM.from_pretrained(checkpoint, config=config)
         elif model_name_or_path:
@@ -177,8 +177,8 @@ if __name__ == '__main__':
                                                             )                                                    
 
     callbacks = [tensorboard_callback, checkpoint_callback]
-
-    # region Training and validation
+    
+    # # # # region Training and validation
     logger.info("***** Running training *****")
     logger.info(f"  Num examples = {len(train_dataset)}")
     logger.info(f"  Num Epochs = {args.num_train_epochs}")
