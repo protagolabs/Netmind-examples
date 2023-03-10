@@ -7,7 +7,7 @@ def setup_args():
     parameter setting
     """
     parser = argparse.ArgumentParser()
-    # these basic args are needed to run the train_netmind.py code
+    # These basic args are defined here for netmind-ai. Changing these may lead to the conflicts
     parser.add_argument('--do_train', default=True, type=bool, required=False, help='')
     parser.add_argument('--data', default=os.getenv("DATA_LOCATION"), type=str, required=False, help='data directory')
     parser.add_argument("--num_train_epochs", default=100, type=int)
