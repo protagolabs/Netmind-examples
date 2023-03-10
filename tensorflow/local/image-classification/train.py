@@ -19,20 +19,39 @@ if __name__ == '__main__':
 
     print('Number of devices: {}'.format(num_gpus))
 
-    global_batch_size = args.batch_size *  num_gpus
+    global_batch_size = args.per_device_train_batch_size *  num_gpus
 
+    #  you can use smaller data for code checking like food-101 dataset
     train_ds = tf.keras.preprocessing.image_dataset_from_directory(
         args.data,
-        seed=args.seed,
+        validation_split=0.2,
+        subset="training",
+        seed=1337,
         image_size=args.input_shape[:2],
         batch_size=global_batch_size,
     )
     val_ds = tf.keras.preprocessing.image_dataset_from_directory(
-        args.val_data,
-        seed=args.seed,
+        args.data,
+        validation_split=0.2,
+        subset="validation",
+        seed=1337,
         image_size=args.input_shape[:2],
         batch_size=global_batch_size,
     )
+
+    # please use these for imagenet1k
+    # train_ds = tf.keras.preprocessing.image_dataset_from_directory(
+    #     args.data,
+    #     seed=args.seed,
+    #     image_size=args.input_shape[:2],
+    #     batch_size=global_batch_size,
+    # )
+    # val_ds = tf.keras.preprocessing.image_dataset_from_directory(
+    #     args.val_data,
+    #     seed=args.seed,
+    #     image_size=args.input_shape[:2],
+    #     batch_size=global_batch_size,
+    # )
 
     # for x, y in train_ds.take(1):
     #     print(x.shape, y)
@@ -41,9 +60,7 @@ if __name__ == '__main__':
     test_num = len(val_ds.file_paths)
     category_num = len(train_ds.class_names)
 
-    #train_ds = train_ds.cache().repeat().prefetch(tf.data.AUTOTUNE)
-    train_ds = train_ds.repeat().prefetch(tf.data.AUTOTUNE)
-    val_ds = val_ds.cache()
+    train_ds = train_ds.prefetch(tf.data.AUTOTUNE)
 
 # First, we create the model and optimizer inside the strategy's scope. This ensures that any variables created with the model and optimizer are mirrored variables.
 
@@ -62,7 +79,7 @@ if __name__ == '__main__':
 
 
 
-        optimizer = tf.keras.optimizers.SGD(args.initial_learning_rate *  num_gpus)
+        optimizer = tf.keras.optimizers.SGD(args.learning_rate *  num_gpus)
 
         model.compile(
             optimizer=optimizer,
@@ -105,7 +122,7 @@ if __name__ == '__main__':
         validation_data=test_data_iterator,
         steps_per_epoch= train_num  // global_batch_size , 
         validation_steps= test_num // global_batch_size ,
-        epochs=args.epoch_num,
+        epochs=args.num_train_epochs,
         callbacks=[model_callback,tensorboard_callback]
     )
 
