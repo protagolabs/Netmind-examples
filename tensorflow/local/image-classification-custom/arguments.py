@@ -7,15 +7,15 @@ def setup_args():
     parameter setting
     """
     parser = argparse.ArgumentParser()
-    # these basic args are needed to run the train_netmind.py code
-    parser.add_argument('--model_name_or_path', default='resnet18', )
+    # These basic args are defined here for netmind-ai. Changing these may lead to the conflicts
     parser.add_argument('--do_train', default=True, type=bool, required=False, help='')
     parser.add_argument('--data', default=os.getenv("DATA_LOCATION"), type=str, required=False, help='data directory')
+    parser.add_argument("--num_train_epochs", default=100, type=int)
     parser.add_argument("--save_steps", default=100, type=int)
-    parser.add_argument("--warmup_steps", default=5000, type=float)
+    parser.add_argument('--model_name_or_path', default='resnet18', )
 
     # the model training
-    parser.add_argument('--per_device_train_batch_size', default=64, type=int, required=False, help='training batchsize')
+    parser.add_argument('--per_device_train_batch_size', default=16, type=int, required=False, help='training batchsize')
     parser.add_argument('--val_data', default=None,  type=str, required=False, help='val data directory')
 
     # the data setting
@@ -23,6 +23,7 @@ def setup_args():
 
     # training setting
     parser.add_argument('--learning_rate', default=0.1, type=float, required=False, help='initial learning rate')
-    parser.add_argument('--num_train_epochs', default=90, type=int, required=False, help='training epoch num')
     parser.add_argument('--seed', default=1, type=int, required=False, help='training seed')
+    parser.add_argument("--warmup_steps", default=5000, type=float)
+    
     return parser.parse_args()
