@@ -51,6 +51,6 @@ pip install tensorflow-gpu==2.9.1
 ```
 #
 
-# Quick demo
+# quick demo
 * prepare food 101 dataset by following ReadMe.md in "datasets"
 * run the example in "./local/image-classification" 
