@@ -25,4 +25,4 @@ def setup_args():
     parser.add_argument('--learning_rate', default=0.1, type=float, required=False, help='initial learning rate')
     parser.add_argument('--num_train_epochs', default=90, type=int, required=False, help='training epoch num')
     parser.add_argument('--seed', default=1, type=int, required=False, help='training seed')
-    return parser.parse_args()
+    return parser.parse_known_args()[0]
