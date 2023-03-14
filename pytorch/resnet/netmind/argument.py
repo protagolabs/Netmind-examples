@@ -38,4 +38,4 @@ def setup_args():
                         default=os.getenv('LOCAL_RANK', -1),
                         help="Local rank. Necessary for using the torch.distributed.launch utility")
 
-    return parser.parse_args()
+    return parser.parse_known_args()[0]
