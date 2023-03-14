@@ -5,11 +5,6 @@ from transformers import create_optimizer, TFAutoModelForMaskedLM
 import logging
 from datetime import datetime
 import os
-
-
-
-
-
 from arguments import setup_args
 
 args = setup_args()
@@ -17,14 +12,6 @@ args = setup_args()
 logger = logging.getLogger(__name__)
 
 if __name__ == '__main__':
-
-
-
-
-
-
-
-
 
     # data_args
     max_seq_length = 512  

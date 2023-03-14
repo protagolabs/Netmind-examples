@@ -19,4 +19,4 @@ def setup_args():
     parser.add_argument("--save_steps", default=100, type=int)
     parser.add_argument('--per_device_train_batch_size', default=8, type=int, required=False,
                         help='training batchsize')
-    return parser.parse_args()
+    return parser.parse_known_args()[0]
