@@ -4,8 +4,7 @@ from arguments import setup_args
 import logging
 from tqdm import tqdm
 
-import json
-import config as c
+
 
 
 args = setup_args()
@@ -16,21 +15,18 @@ logger = logging.getLogger(__name__)
 
 if __name__ == '__main__':
 
-    from tensorflow.python.client import device_lib
-
-    logger.info(device_lib.list_local_devices())
-    if not os.getenv('TF_CONFIG'):
-        c.tf_config['task']['index'] = int(os.getenv('INDEX'))
-        os.environ['TF_CONFIG'] = json.dumps(c.tf_config)
+    print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 
 
-    n_workers = len(json.loads(os.environ['TF_CONFIG']).get('cluster', {}).get('worker'))
-    logger.info(f'c.tf_config : {c.tf_config}')
-    global_batch_size = args.per_device_train_batch_size * n_workers
+    mirrored_strategy = tf.distribute.MirroredStrategy()
+    
+    num_gpus = mirrored_strategy.num_replicas_in_sync
 
-    mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
+    # print('Number of devices: {}'.format(num_gpus))
 
-     # you can use smaller data for code checking like food-101 dataset
+    global_batch_size = args.per_device_train_batch_size *  num_gpus
+
+    #  you can use smaller data for code checking like food-101 dataset
     train_ds = tf.keras.preprocessing.image_dataset_from_directory(
         args.data,
         validation_split=0.2,
@@ -68,9 +64,7 @@ if __name__ == '__main__':
     test_num = len(val_ds.file_paths)
     category_num = len(train_ds.class_names)
 
-    #train_ds = train_ds.cache().repeat().prefetch(tf.data.AUTOTUNE)
-    train_ds = train_ds.prefetch(tf.data.AUTOTUNE)
-    val_ds = val_ds.cache()
+    train_ds = train_ds.repeat().prefetch(tf.data.AUTOTUNE)
 
     # Create a checkpoint directory to store the checkpoints.
     checkpoint_dir = './tb_logdir'
@@ -110,7 +104,8 @@ if __name__ == '__main__':
         model.summary()
 
 
-        optimizer = tf.keras.optimizers.SGD(args.learning_rate *  n_workers)
+
+        optimizer = tf.keras.optimizers.SGD(args.learning_rate *  num_gpus)
 
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=model)
 
@@ -158,9 +153,6 @@ if __name__ == '__main__':
     # dataset_eval = test_iterator().batch(global_batch_size, drop_remainder=False)
     test_data_iterator = mirrored_strategy.experimental_distribute_dataset(val_ds)
 
-
-    # epochs_trained = nmp.cur_epoch
-
     for epoch in range(args.num_train_epochs):
         # TRAIN LOOP
         total_loss = 0.0
@@ -170,25 +162,15 @@ if __name__ == '__main__':
             total_loss +=loss_tmp
             num_batches += 1
 
-            train_loss = total_loss / train_num
-            # netmind relatived
-            #print(f'loss : {float(train_loss.numpy())} ')
-            train_monitor_metrics = {
-                "loss": float(train_loss.numpy())
-            }
-
-        eval_monitor_metrics = {
-            'eval loss': float(test_loss.result().numpy()),
-            'eval-accuracy':float(test_accuracy.result().numpy())
-        }
+        train_loss = total_loss / num_batches
 
         # TEST LOOP
         for x in tqdm(test_data_iterator):
             distributed_test_step(x)
 
+
         if epoch % 2 == 0:
             checkpoint.save(checkpoint_prefix)
-
 
         template = ("Epoch {}, Loss: {}, Accuracy: {}, Test Loss: {}, "
                     "Test Accuracy: {}")
@@ -196,9 +178,6 @@ if __name__ == '__main__':
                                 train_accuracy.result() * 100, test_loss.result(),
                                 test_accuracy.result() * 100))
 
-
-
         test_loss.reset_states()
         train_accuracy.reset_states()
         test_accuracy.reset_states()
-    print(f'program exited.')

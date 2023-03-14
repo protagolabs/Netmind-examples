@@ -6,8 +6,9 @@ import logging
 from datetime import datetime
 import os
 
-import json
-import config as c
+
+
+
 
 from arguments import setup_args
 
@@ -15,25 +16,18 @@ args = setup_args()
 
 logger = logging.getLogger(__name__)
 
-
-class CustomTrainerCallback(tf.keras.callbacks.Callback):
-    # Hugging Face models have a save_pretrained() method that saves both the weights and the necessary
-    # metadata to allow them to be loaded as a pretrained model in future. This is a simple Keras callback
-    # that saves the model with this method after each epoch.
-    def __init__(self, batches_per_epoch, args=args):
-        super().__init__(batches_per_epoch, args)
-
-
 if __name__ == '__main__':
-    from tensorflow.python.client import device_lib
 
-    logger.info(device_lib.list_local_devices())
-    if not os.getenv('TF_CONFIG'):
-        c.tf_config['task']['index'] = int(os.getenv('INDEX'))
-        os.environ['TF_CONFIG'] = json.dumps(c.tf_config)
+
+
+
+
+
+
+
 
     # data_args
-    max_seq_length = 512
+    max_seq_length = 512  
     preprocessing_num_workers = 128
     overwrite_cache = True
     checkpoint = None
@@ -41,21 +35,24 @@ if __name__ == '__main__':
     tokenizer_name = "bert-base-uncased"
     model_name_or_path = None  # for training from scratch
 
+
+    per_device_train_batch_size = 8
+    learning_rate = 0.0001
     warmup_proportion = 0.15
     mlm_probability = 0.1
     weight_decay = 1e-7
     output_dir = "./recent_saved_model"
     is_xla = False
 
-    n_workers = len(json.loads(os.environ['TF_CONFIG']).get('cluster', {}).get('worker'))
-    logger.info(f'c.tf_config : {c.tf_config}')
-    global_batch_size = args.per_device_train_batch_size * n_workers
+    
 
-    strategy = tf.distribute.MultiWorkerMirroredStrategy()
+
+
+    strategy = tf.distribute.MirroredStrategy()
 
     #### you can save/load the preprocessed data here ###
 
-    train_dataset = datasets.load_from_disk(args.data + "/train")
+    train_dataset = datasets.load_from_disk(args.data)
 
     print(train_dataset)
     # region Load pretrained model and tokenizer
@@ -82,6 +79,7 @@ if __name__ == '__main__':
         )
     # endregion
 
+
     # column_names = raw_datasets.column_names
     # text_column_name = "text" if "text" in column_names else column_names[0]
     # print(text_column_name)
@@ -100,9 +98,9 @@ if __name__ == '__main__':
                 f"model ({tokenizer.model_max_length}). Using max_seq_length={tokenizer.model_max_length}."
             )
         max_seq_length = min(max_seq_length, tokenizer.model_max_length)
-
+        
     with strategy.scope():
-        # # region Prepare model
+        # region Prepare model
         if checkpoint is not None:
             model = TFAutoModelForMaskedLM.from_pretrained(checkpoint, config=config)
         elif model_name_or_path:
@@ -114,7 +112,8 @@ if __name__ == '__main__':
         model.resize_token_embeddings(len(tokenizer))
         # endregion
 
-        # region TF Dataset preparation
+        # region TF Dataset preparation 
+        num_replicas = strategy.num_replicas_in_sync
 
         data_collator = DataCollatorForLanguageModeling(
             tokenizer=tokenizer, mlm_probability=mlm_probability, return_tensors="tf"
@@ -123,11 +122,11 @@ if __name__ == '__main__':
         options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.OFF
 
         tf_train_dataset = model.prepare_tf_dataset(
-            train_dataset,
-            shuffle=True,
-            batch_size=global_batch_size,
-            collate_fn=data_collator,
-        ).with_options(options)
+                train_dataset,
+                shuffle=True,
+                batch_size=num_replicas * per_device_train_batch_size,
+                collate_fn=data_collator,
+            ).with_options(options)
 
         # endregion
 
@@ -152,7 +151,7 @@ if __name__ == '__main__':
         # )
 
         optimizer, lr_schedule = create_optimizer(
-            init_lr=args.learning_rate,
+            init_lr=learning_rate,
             num_train_steps=num_train_steps,
             num_warmup_steps=num_warmup_steps,
             weight_decay_rate=weight_decay,
@@ -162,36 +161,38 @@ if __name__ == '__main__':
 
     # endregion
 
+
+
     logdir = "logs/" + datetime.now().strftime("%Y%m%d-%H%M%S")
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir,
-                                                          histogram_freq=1,
-                                                          profile_batch=0,
-                                                          update_freq=args.save_steps)
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir, 
+                                                        histogram_freq=1,
+                                                        profile_batch=0,
+                                                        update_freq=args.save_steps)
 
-    model_callback = tf.keras.callbacks.ModelCheckpoint(filepath=os.path.join(logdir, 'ckpt'),
-                                                             monitor='train_loss',
-                                                             save_freq="epoch",
-                                                             save_best_only=False,
-                                                             save_weights_only=False
-                                                             )
+    checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(filepath=os.path.join(logdir, 'ckpt'),
+                                                            monitor='train_loss',
+                                                            save_freq="epoch",
+                                                            save_best_only=False,
+                                                            save_weights_only=False
+                                                            )                                                    
 
-    batches_per_epoch = len(tf_train_dataset)
-
-    all_callbacks = [tensorboard_callback, model_callback]
-
-
+    callbacks = [tensorboard_callback, checkpoint_callback]
+    
+    # # # # region Training and validation
     logger.info("***** Running training *****")
     logger.info(f"  Num examples = {len(train_dataset)}")
     logger.info(f"  Num Epochs = {args.num_train_epochs}")
-    logger.info(f"  Instantaneous batch size per device = {args.per_device_train_batch_size}")
-    logger.info(f"  Total train batch size = {args.per_device_train_batch_size * n_workers}")
+    logger.info(f"  Instantaneous batch size per device = {per_device_train_batch_size}")
+    logger.info(f"  Total train batch size = {per_device_train_batch_size * num_replicas}")
+
+
 
     history = model.fit(
         tf_train_dataset,
         # validation_data=tf_eval_dataset,
         epochs=int(args.num_train_epochs),
         steps_per_epoch=len(tf_train_dataset),
-        callbacks=all_callbacks,
+        callbacks=callbacks,
     )
 
     if output_dir is not None:

@@ -1,52 +1,56 @@
 import os
 import tensorflow as tf
-import config as c
 from arguments import setup_args
 import logging
 
-import json
-import config as c
 
 args = setup_args()
 
 logger = logging.getLogger(__name__)
 
 
-class CustomTrainerCallback(tf.keras.callbacks.Callback):
-    # Hugging Face models have a save_pretrained() method that saves both the weights and the necessary
-    # metadata to allow them to be loaded as a pretrained model in future. This is a simple Keras callback
-    # that saves the model with this method after each epoch.
-    def __init__(self, batches_per_epoch, args=args):
-        super().__init__(batches_per_epoch, args)
 
 if __name__ == '__main__':
 
-    from tensorflow.python.client import device_lib
+    mirrored_strategy = tf.distribute.MirroredStrategy()
+    
+    num_gpus = mirrored_strategy.num_replicas_in_sync
 
-    logger.info(device_lib.list_local_devices())
-    if not os.getenv('TF_CONFIG'):
-        c.tf_config['task']['index'] = int(os.getenv('INDEX'))
-        os.environ['TF_CONFIG'] = json.dumps(c.tf_config)
+    print('Number of devices: {}'.format(num_gpus))
 
+    global_batch_size = args.per_device_train_batch_size *  num_gpus
 
-    n_workers = len(json.loads(os.environ['TF_CONFIG']).get('cluster', {}).get('worker'))
-    logger.info(f'c.tf_config : {c.tf_config}')
-    global_batch_size = args.per_device_train_batch_size * n_workers
-
-    multi_worker_mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
-
+    #  you can use smaller data for code checking like food-101 dataset
     train_ds = tf.keras.preprocessing.image_dataset_from_directory(
-        args.data + "/train",
-        seed=args.seed,
+        args.data,
+        validation_split=0.2,
+        subset="training",
+        seed=1337,
         image_size=args.input_shape[:2],
         batch_size=global_batch_size,
     )
     val_ds = tf.keras.preprocessing.image_dataset_from_directory(
-        args.data + "/val",
-        seed=args.seed,
+        args.data,
+        validation_split=0.2,
+        subset="validation",
+        seed=1337,
         image_size=args.input_shape[:2],
         batch_size=global_batch_size,
     )
+
+    # please use these for imagenet1k
+    # train_ds = tf.keras.preprocessing.image_dataset_from_directory(
+    #     args.data,
+    #     seed=args.seed,
+    #     image_size=args.input_shape[:2],
+    #     batch_size=global_batch_size,
+    # )
+    # val_ds = tf.keras.preprocessing.image_dataset_from_directory(
+    #     args.val_data,
+    #     seed=args.seed,
+    #     image_size=args.input_shape[:2],
+    #     batch_size=global_batch_size,
+    # )
 
     # for x, y in train_ds.take(1):
     #     print(x.shape, y)
@@ -55,14 +59,11 @@ if __name__ == '__main__':
     test_num = len(val_ds.file_paths)
     category_num = len(train_ds.class_names)
 
- 
-    #train_ds = train_ds.cache().repeat().prefetch(tf.data.AUTOTUNE)
     train_ds = train_ds.repeat().prefetch(tf.data.AUTOTUNE)
-    val_ds = val_ds.cache()
 
     # First, we create the model and optimizer inside the strategy's scope. This ensures that any variables created with the model and optimizer are mirrored variables.
 
-    with multi_worker_mirrored_strategy.scope():
+    with mirrored_strategy.scope():
 
 
         inputs = tf.keras.Input(shape=args.input_shape)
@@ -75,22 +76,24 @@ if __name__ == '__main__':
 
         model.summary()
 
+
+
+        optimizer = tf.keras.optimizers.SGD(args.learning_rate *  num_gpus)
+
         model.compile(
-            optimizer=tf.keras.optimizers.SGD(args.learning_rate *  n_workers),
+            optimizer=optimizer,
             loss=tf.losses.SparseCategoricalCrossentropy(from_logits=False),
             metrics=tf.keras.metrics.SparseCategoricalAccuracy()
         )
-
-
     
 # Next, we create the input dataset and call `tf.distribute.Strategy.experimental_distribute_dataset` to distribute the dataset based on the strategy.
 
-    train_data_iterator = multi_worker_mirrored_strategy.experimental_distribute_dataset(train_ds)
+    train_data_iterator = mirrored_strategy.experimental_distribute_dataset(train_ds)
 
 
     #  eval
     # dataset_eval = test_iterator().batch(global_batch_size, drop_remainder=False)
-    test_data_iterator = multi_worker_mirrored_strategy.experimental_distribute_dataset(val_ds)
+    test_data_iterator = mirrored_strategy.experimental_distribute_dataset(val_ds)
 
     tensorboard_callback = tf.keras.callbacks.TensorBoard(
         log_dir="tb_logs/snap",
@@ -113,15 +116,21 @@ if __name__ == '__main__':
         save_freq="epoch",
     )
 
-    batches_per_epoch = (train_num // global_batch_size)
-
-    all_callbacks = [tensorboard_callback, model_callback]
-
     history = model.fit(
         train_data_iterator,
-        validation_data=test_data_iterator if hasattr(args, "do_eval") and args.do_eval else None,
+        validation_data=test_data_iterator,
         steps_per_epoch= train_num  // global_batch_size , 
-        validation_steps= test_num // global_batch_size if hasattr(args, "do_eval") and args.do_eval else None,
+        validation_steps= test_num // global_batch_size ,
         epochs=args.num_train_epochs,
-        callbacks=all_callbacks
+        callbacks=[model_callback,tensorboard_callback]
     )
+
+    # #plot the training history
+    # plt.plot(history.history['loss'], label='Training Loss')
+    # plt.plot(history.history['val_loss'], label='Validation Loss')
+    # plt.legend()
+    # plt.xlabel('Epochs')
+    # plt.ylabel('Mean Squared Error')
+    # plt.savefig('model_training_history')
+    # plt.show()
+
