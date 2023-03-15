@@ -4,28 +4,25 @@ from arguments import setup_args
 import logging
 from tqdm import tqdm
 
-
+import json
 
 args = setup_args()
 
 logger = logging.getLogger(__name__)
 
-
-
 if __name__ == '__main__':
 
-    print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
+    from tensorflow.python.client import device_lib
+
+    logger.info(device_lib.list_local_devices())
 
 
-    mirrored_strategy = tf.distribute.MirroredStrategy()
-    
-    num_gpus = mirrored_strategy.num_replicas_in_sync
+    n_workers = len(json.loads(os.environ['TF_CONFIG']).get('cluster', {}).get('worker'))
+    global_batch_size = args.per_device_train_batch_size * n_workers
 
-    # print('Number of devices: {}'.format(num_gpus))
+    mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
 
-    global_batch_size = args.per_device_train_batch_size *  num_gpus
-
-    #  you can use smaller data for code checking like food-101 dataset
+    # you can use smaller data for code checking like food-101 dataset
     train_ds = tf.keras.preprocessing.image_dataset_from_directory(
         args.data,
         validation_split=0.2,
@@ -63,34 +60,35 @@ if __name__ == '__main__':
     test_num = len(val_ds.file_paths)
     category_num = len(train_ds.class_names)
 
-    train_ds = train_ds.repeat().prefetch(tf.data.AUTOTUNE)
+    train_ds = train_ds.prefetch(tf.data.AUTOTUNE)
 
     # Create a checkpoint directory to store the checkpoints.
     checkpoint_dir = './tb_logdir'
     checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
 
-
-# First, we create the model and optimizer inside the strategy's scope. This ensures that any variables created with the model and optimizer are mirrored variables.
+    # First, we create the model and optimizer inside the strategy's scope. This ensures that any variables created with the model and optimizer are mirrored variables.
 
     with mirrored_strategy.scope():
 
         # Set reduction to `NONE` so you can do the reduction afterwards and divide by
         # global batch size.
         loss_object = tf.keras.losses.SparseCategoricalCrossentropy(name="train_loss",
-            from_logits=False,
-            reduction=tf.keras.losses.Reduction.NONE)
+                                                                    from_logits=False,
+                                                                    reduction=tf.keras.losses.Reduction.NONE)
+
+
         def compute_loss(labels, predictions):
             per_example_loss = loss_object(labels, predictions)
             return tf.nn.compute_average_loss(per_example_loss, global_batch_size=global_batch_size)
 
+
         test_loss = tf.keras.metrics.SparseCategoricalCrossentropy(name="test_loss",
-            from_logits=False)
+                                                                   from_logits=False)
 
         train_accuracy = tf.keras.metrics.SparseCategoricalAccuracy(
             name='train_accuracy')
         test_accuracy = tf.keras.metrics.SparseCategoricalAccuracy(
             name='test_accuracy')
-
 
         inputs = tf.keras.Input(shape=args.input_shape)
 
@@ -102,14 +100,12 @@ if __name__ == '__main__':
 
         model.summary()
 
-
-
-        optimizer = tf.keras.optimizers.SGD(args.learning_rate *  num_gpus)
+        optimizer = tf.keras.optimizers.SGD(args.learning_rate * n_workers)
 
         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=model)
 
 
-# now we define the model compile parts
+    # now we define the model compile parts
 
     @tf.function
     def distributed_train_step(dataset_inputs):
@@ -125,11 +121,12 @@ if __name__ == '__main__':
             optimizer.apply_gradients(zip(gradients, model.trainable_variables))
 
             train_accuracy.update_state(labels, predictions)
-            return loss         
+            return loss
 
         per_replica_losses = mirrored_strategy.run(train_step, args=(dataset_inputs,))
         return mirrored_strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses,
-                                axis=None)
+                                        axis=None)
+
 
     @tf.function
     def distributed_test_step(dataset_inputs):
@@ -141,16 +138,18 @@ if __name__ == '__main__':
 
             test_loss.update_state(labels, predictions)
             test_accuracy.update_state(labels, predictions)
-    
+
         return mirrored_strategy.run(test_step, args=(dataset_inputs,))
 
 
-# Next, we create the input dataset and call `tf.distribute.Strategy.experimental_distribute_dataset` to distribute the dataset based on the strategy.
+    # Next, we create the input dataset and call `tf.distribute.Strategy.experimental_distribute_dataset` to distribute the dataset based on the strategy.
 
     train_data_iterator = mirrored_strategy.experimental_distribute_dataset(train_ds)
     #  eval
     # dataset_eval = test_iterator().batch(global_batch_size, drop_remainder=False)
     test_data_iterator = mirrored_strategy.experimental_distribute_dataset(val_ds)
+
+    # epochs_trained = nmp.cur_epoch
 
     for epoch in range(args.num_train_epochs):
         # TRAIN LOOP
@@ -158,15 +157,24 @@ if __name__ == '__main__':
         num_batches = 0
         for ds in tqdm(train_data_iterator):
             loss_tmp = distributed_train_step(ds)
-            total_loss +=loss_tmp
+            total_loss += loss_tmp
             num_batches += 1
 
-        train_loss = total_loss / num_batches
+            train_loss = total_loss / train_num
+            # netmind relatived
+            # print(f'loss : {float(train_loss.numpy())} ')
+            train_monitor_metrics = {
+                "loss": float(train_loss.numpy())
+            }
+
+        eval_monitor_metrics = {
+            'eval loss': float(test_loss.result().numpy()),
+            'eval-accuracy': float(test_accuracy.result().numpy())
+        }
 
         # TEST LOOP
         for x in tqdm(test_data_iterator):
             distributed_test_step(x)
-
 
         if epoch % 2 == 0:
             checkpoint.save(checkpoint_prefix)
@@ -174,9 +182,10 @@ if __name__ == '__main__':
         template = ("Epoch {}, Loss: {}, Accuracy: {}, Test Loss: {}, "
                     "Test Accuracy: {}")
         print(template.format(epoch + 1, train_loss,
-                                train_accuracy.result() * 100, test_loss.result(),
-                                test_accuracy.result() * 100))
+                              train_accuracy.result() * 100, test_loss.result(),
+                              test_accuracy.result() * 100))
 
         test_loss.reset_states()
         train_accuracy.reset_states()
         test_accuracy.reset_states()
+    print(f'program exited.')
