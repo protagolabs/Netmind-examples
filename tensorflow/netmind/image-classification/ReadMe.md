@@ -20,7 +20,8 @@ python train.py --data="/home/xing/datasets/imagenet1k/train" --val_data="/home/
 
 ## netmind platform
 * Run locally with netmind-mixin
-    1. install the [netmind-mixin library](https://github.com/protagolabs/NetMind-Mixin/tree/feature-tf-netmind), make sure you install from the tensorflow branch!
+    1. Follow the [Installation]((https://github.com/protagolabs/Netmind-examples/tree/main)) section in main page.
+
     2. create the config.py file as add your ip information (you can access those information by "ifconfig") to each gpu (2 gpus):
         ```bash
         tf_config = {
@@ -32,7 +33,7 @@ python train.py --data="/home/xing/datasets/imagenet1k/train" --val_data="/home/
         ```
         **"192.168.1.16" is the ip on my single machine, if you have different gpus on different machines, please use the correct ones.**
 
-    2. modify your code and adopt to the netmind-mixin as follows (you can compare the train.py with train_netmind.py for more details):
+    3. modify your code and adopt to the netmind-mixin as follows (you can compare the train.py with train_netmind.py for more details):
 
         * add netmind class
             ![add netmind callbacks](imgs/netmind_01.jpg)
