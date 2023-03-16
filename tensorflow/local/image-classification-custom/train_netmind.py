@@ -40,21 +40,7 @@ if __name__ == '__main__':
         batch_size=global_batch_size,
     )
 
-    # train_ds = tf.keras.preprocessing.image_dataset_from_directory(
-    #     args.data,
-    #     seed=args.seed,
-    #     image_size=args.input_shape[:2],
-    #     batch_size=global_batch_size,
-    # )
-    # val_ds = tf.keras.preprocessing.image_dataset_from_directory(
-    #     args.val_data,
-    #     seed=args.seed,
-    #     image_size=args.input_shape[:2],
-    #     batch_size=global_batch_size,
-    # )
 
-    # for x, y in train_ds.take(1):
-    #     print(x.shape, y)
 
     train_num = len(train_ds.file_paths)
     test_num = len(val_ds.file_paths)
@@ -63,8 +49,8 @@ if __name__ == '__main__':
     train_ds = train_ds.prefetch(tf.data.AUTOTUNE)
 
     # Create a checkpoint directory to store the checkpoints.
-    checkpoint_dir = './tb_logdir'
-    checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
+    #checkpoint_dir = './tb_logdir'
+    #checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
 
     # First, we create the model and optimizer inside the strategy's scope. This ensures that any variables created with the model and optimizer are mirrored variables.
 
@@ -102,7 +88,7 @@ if __name__ == '__main__':
 
         optimizer = tf.keras.optimizers.SGD(args.learning_rate * n_workers)
 
-        checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=model)
+        #checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=model)
 
 
     # now we define the model compile parts
@@ -176,8 +162,8 @@ if __name__ == '__main__':
         for x in tqdm(test_data_iterator):
             distributed_test_step(x)
 
-        if epoch % 2 == 0:
-            checkpoint.save(checkpoint_prefix)
+        #if epoch % 2 == 0:
+        #    checkpoint.save(checkpoint_prefix)
 
         template = ("Epoch {}, Loss: {}, Accuracy: {}, Test Loss: {}, "
                     "Test Accuracy: {}")
