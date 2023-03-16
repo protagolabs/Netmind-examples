@@ -16,8 +16,10 @@ if __name__ == '__main__':
 
     logger.info(device_lib.list_local_devices())
 
+    n_workers = 1
+    if os.getenv('TF_CONFIG'):
+        n_workers = len(json.loads(os.environ['TF_CONFIG']).get('cluster', {}).get('worker'))
 
-    n_workers = len(json.loads(os.environ['TF_CONFIG']).get('cluster', {}).get('worker'))
     global_batch_size = args.per_device_train_batch_size * n_workers
 
     mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
@@ -48,9 +50,6 @@ if __name__ == '__main__':
 
     train_ds = train_ds.prefetch(tf.data.AUTOTUNE)
 
-    # Create a checkpoint directory to store the checkpoints.
-    #checkpoint_dir = './tb_logdir'
-    #checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
 
     # First, we create the model and optimizer inside the strategy's scope. This ensures that any variables created with the model and optimizer are mirrored variables.
 
@@ -87,8 +86,6 @@ if __name__ == '__main__':
         model.summary()
 
         optimizer = tf.keras.optimizers.SGD(args.learning_rate * n_workers)
-
-        #checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=model)
 
 
     # now we define the model compile parts
@@ -161,9 +158,6 @@ if __name__ == '__main__':
         # TEST LOOP
         for x in tqdm(test_data_iterator):
             distributed_test_step(x)
-
-        #if epoch % 2 == 0:
-        #    checkpoint.save(checkpoint_prefix)
 
         template = ("Epoch {}, Loss: {}, Accuracy: {}, Test Loss: {}, "
                     "Test Accuracy: {}")
