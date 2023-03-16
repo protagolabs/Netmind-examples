@@ -33,7 +33,7 @@ python train.py --data="./data_mlm"
         ```
         **"192.168.1.16" is the ip on my single machine, if you have different gpus on different machines, please use the correct ones.**
 
-    3. modify your code and adopt to the netmind-mixin as follows (you can compare the train.py with train_netmind.py for more details):
+    3. modify your code and adopt to the netmind-mixin as follows (you can compare the train_netmind.py in [local](https://github.com/protagolabs/Netmind-examples/tree/main/tensorflow/local) and current directory for more details):
 
         * add netmind class
             ![add netmind callbacks](imgs/netmind_01.jpg)
