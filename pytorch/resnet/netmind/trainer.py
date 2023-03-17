@@ -1,19 +1,11 @@
 from NetmindMixins.Netmind import nmp
-import pickle
-import sys
-from pathlib import Path
 
-import torch
-from torch.nn.utils import clip_grad_norm_
-import os
-import random
 import shutil
 import time
 import torch
 
 
 def train(train_loader, train_sampler, val_loader, model, criterion, optimizer, args, device):
-    
     best_acc1 = 0
     epoch = nmp.cur_epoch
     for epoch in range(epoch, args.num_train_epochs):
@@ -21,7 +13,7 @@ def train(train_loader, train_sampler, val_loader, model, criterion, optimizer, 
         # shuffle the training data at every epoch
         train_sampler.set_epoch(epoch)
         adjust_learning_rate(optimizer, epoch, args)
-    
+
         batch_time = AverageMeter('Time', ':6.3f')
         data_time = AverageMeter('Data', ':6.3f')
         losses = AverageMeter('Loss', ':.4e')
@@ -34,16 +26,14 @@ def train(train_loader, train_sampler, val_loader, model, criterion, optimizer, 
 
         # switch to train mode
         model.train()
-        
 
         end = time.time()
         for i, (images, target) in enumerate(train_loader):
             if nmp.should_skip_step():
-            # measure data loading time
+                # measure data loading time
                 continue
             data_time.update(time.time() - end)
 
-            
             images = images.cuda(device, non_blocking=True)
             target = target.cuda(device, non_blocking=True)
 
@@ -86,9 +76,8 @@ def train(train_loader, train_sampler, val_loader, model, criterion, optimizer, 
             'model_name_or_path': args.model_name_or_path,
             'state_dict': model.state_dict(),
             'best_acc1': best_acc1,
-            'optimizer' : optimizer.state_dict(),
+            'optimizer': optimizer.state_dict(),
         }, is_best)
-
 
 
 def validate(val_loader, model, criterion, args, device):
@@ -107,7 +96,7 @@ def validate(val_loader, model, criterion, args, device):
     with torch.no_grad():
         end = time.time()
         for i, (images, target) in enumerate(val_loader):
-            
+
             images = images.cuda(device, non_blocking=True)
             target = target.cuda(device, non_blocking=True)
 
@@ -139,6 +128,7 @@ def validate(val_loader, model, criterion, args, device):
     nmp.evaluate(monitor_metrics)
     return top1.avg
 
+
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
     torch.save(state, filename)
     if is_best:
@@ -147,6 +137,7 @@ def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
 
 class AverageMeter(object):
     """Computes and stores the average and current value"""
+
     def __init__(self, name, fmt=':f'):
         self.name = name
         self.fmt = fmt
@@ -185,6 +176,7 @@ class ProgressMeter(object):
         fmt = '{:' + str(num_digits) + 'd}'
         return '[' + fmt + '/' + fmt.format(num_batches) + ']'
 
+
 def accuracy(output, target, topk=(1,)):
     """Computes the accuracy over the k top predictions for the specified values of k"""
     with torch.no_grad():
@@ -200,6 +192,7 @@ def accuracy(output, target, topk=(1,)):
             correct_k = correct[:k].reshape(-1).float().sum(0, keepdim=True)
             res.append(correct_k.mul_(100.0 / batch_size))
         return res
+
 
 def adjust_learning_rate(optimizer, epoch, training_args):
     """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""

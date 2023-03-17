@@ -1,0 +1,10 @@
+protobuf==3.19.0
+retry
+boto3
+wandb
+opencv-python-headless
+config
+pydantic
+matplotlib
+tqdm
+datasets

@@ -61,7 +61,7 @@ if __name__ == '__main__':
 
     train_ds = train_ds.repeat().prefetch(tf.data.AUTOTUNE)
 
-# First, we create the model and optimizer inside the strategy's scope. This ensures that any variables created with the model and optimizer are mirrored variables.
+    # First, we create the model and optimizer inside the strategy's scope. This ensures that any variables created with the model and optimizer are mirrored variables.
 
     with mirrored_strategy.scope():
 

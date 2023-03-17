@@ -1,16 +1,9 @@
-import transformers
 import torch
-import os
-import numpy as np
-import argparse
-from datetime import datetime
 from tqdm import tqdm
 from torch.utils.data import Dataset, DataLoader, IterableDataset
 from torch.utils.data.distributed import DistributedSampler
 import torch.distributed as dist
-import pandas as pd
-from transformers import AutoModelForCausalLM, DataCollatorForLanguageModeling
-import matplotlib.pyplot as plt
+from transformers import  DataCollatorForLanguageModeling
 from model import get_model
 from data import get_data
 from optimizer import get_optimizer

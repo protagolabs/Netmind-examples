@@ -44,7 +44,9 @@ def train(tokenized_datasets, model, tokenizer, training_args, data_collator, op
             optimizer.step()
             # free might_accumulatd tensors for OOM
             del outputs, batch
-
+            monitor_metrics = {
+                "loss": loss.item()
+            }
             # at the end of the step: on_step_end
             collaborative_call.on_step_end(loss=loss.item())
 
