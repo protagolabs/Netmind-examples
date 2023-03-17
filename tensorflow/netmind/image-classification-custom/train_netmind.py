@@ -32,39 +32,20 @@ if __name__ == '__main__':
     mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
     nmp.init()
 
-     # you can use smaller data for code checking like food-101 dataset
+
     train_ds = tf.keras.preprocessing.image_dataset_from_directory(
         args.data,
-        validation_split=0.2,
-        subset="training",
-        seed=1337,
+        seed=args.seed,
         image_size=args.input_shape[:2],
         batch_size=global_batch_size,
     )
     val_ds = tf.keras.preprocessing.image_dataset_from_directory(
-        args.data,
-        validation_split=0.2,
-        subset="validation",
-        seed=1337,
+        args.val_data,
+        seed=args.seed,
         image_size=args.input_shape[:2],
         batch_size=global_batch_size,
     )
 
-    # train_ds = tf.keras.preprocessing.image_dataset_from_directory(
-    #     args.data,
-    #     seed=args.seed,
-    #     image_size=args.input_shape[:2],
-    #     batch_size=global_batch_size,
-    # )
-    # val_ds = tf.keras.preprocessing.image_dataset_from_directory(
-    #     args.val_data,
-    #     seed=args.seed,
-    #     image_size=args.input_shape[:2],
-    #     batch_size=global_batch_size,
-    # )
-
-    # for x, y in train_ds.take(1):
-    #     print(x.shape, y)
 
     train_num = len(train_ds.file_paths)
     test_num = len(val_ds.file_paths)
