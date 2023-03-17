@@ -1,21 +1,10 @@
-# Train Resnet50 on Imagenet without Trainer
-## prepare the imagenet dataset
+# Train Resnet50 without Trainer
+## prepare the dataset
 
-* Please access the download the imagenet-ilsvrc2012 dataset from [here](https://image-net.org/index.php).
+* choose the dataset you want in "dataset" directory.
 
-* The Training images (Task 1 & 2) is about 138GB and the  Validation images (all tasks) is about 6.3GB.
+* we use the tiny-imagenet dataset in train_netmind.py
 
-* unzip the datasets by using the following script in the download directory
-```bash
-bash extract_ILSVRC.sh
-```
-
-## local
-
-* model training
-```bash
-python train.py --data="/home/xing/datasets/imagenet1k/train" --val_data="/home/xing/datasets/imagenet1k/val"
-```
 
 ## netmind platform
 * Run locally with netmind-mixin
