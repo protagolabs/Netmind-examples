@@ -5,10 +5,7 @@ from transformers import create_optimizer, TFAutoModelForMaskedLM
 import logging
 from datetime import datetime
 import os
-
 import json
-import config as c
-
 from arguments import setup_args
 
 args = setup_args()
@@ -28,9 +25,6 @@ if __name__ == '__main__':
     from tensorflow.python.client import device_lib
 
     logger.info(device_lib.list_local_devices())
-    if not os.getenv('TF_CONFIG') and os.getenv('INDEX') is not None:
-        c.tf_config['task']['index'] = int(os.getenv('INDEX'))
-        os.environ['TF_CONFIG'] = json.dumps(c.tf_config)
 
     # data_args
     max_seq_length = 512
@@ -47,8 +41,10 @@ if __name__ == '__main__':
     output_dir = "./recent_saved_model"
     is_xla = False
 
-    n_workers = len(json.loads(os.environ['TF_CONFIG']).get('cluster', {}).get('worker'))
-    logger.info(f'c.tf_config : {c.tf_config}')
+    n_workers = 1
+    if os.getenv('TF_CONFIG'):
+        n_workers = len(json.loads(os.environ['TF_CONFIG']).get('cluster', {}).get('worker'))
+
     global_batch_size = args.per_device_train_batch_size * n_workers
 
     strategy = tf.distribute.MultiWorkerMirroredStrategy()

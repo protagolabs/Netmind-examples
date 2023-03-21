@@ -1,0 +1,4 @@
+tensorflow==2.8.0
+protobuf==3.19.0
+tqdm
+import_ipynb

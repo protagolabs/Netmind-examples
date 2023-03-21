@@ -14,7 +14,7 @@ def setup_args():
     parser.add_argument('--learning_rate', default=0.0001, type=float, required=False, help='initial learning rate')
 
     parser.add_argument('--do_train', default=True, type=bool, required=False, help='')
-    parser.add_argument('--data', default=os.getenv("DATA_LOCATION"), type=str, required=False, help='data directory')
+    parser.add_argument('--data', default='/tf/tiny-imagenet-200', type=str, required=False, help='data directory')
     parser.add_argument("--num_train_epochs", default=6, type=int)
     parser.add_argument("--save_steps", default=100, type=int)
     parser.add_argument('--per_device_train_batch_size', default=8, type=int, required=False,
