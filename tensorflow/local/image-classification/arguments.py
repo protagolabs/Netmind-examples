@@ -9,7 +9,7 @@ def setup_args():
     parser = argparse.ArgumentParser()
     # These basic args are defined here for netmind-ai. Changing these may lead to the conflicts
     parser.add_argument('--do_train', default=True, type=bool, required=False, help='')
-    parser.add_argument('--data', default=os.getenv("DATA_LOCATION"), type=str, required=False, help='data directory')
+    parser.add_argument('--data', default='/tf/tiny-imagenet-200', type=str, required=False, help='data directory')
     parser.add_argument("--num_train_epochs", default=100, type=int)
     parser.add_argument("--save_steps", default=100, type=int)
     parser.add_argument('--model_name_or_path', default='resnet18', )
@@ -26,4 +26,4 @@ def setup_args():
     parser.add_argument('--seed', default=1, type=int, required=False, help='training seed')
     parser.add_argument("--warmup_steps", default=5000, type=float)
 
-    return parser.parse_args()
+    return parser.parse_known_args()[0]
