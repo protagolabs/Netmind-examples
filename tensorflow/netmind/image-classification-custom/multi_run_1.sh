@@ -1,6 +1,5 @@
 export INDEX=1 # the index of gpu
 export PLATFORM=tensorflow
-export PYTHONPATH="/home/xing/ly/NetMind-Mixin":${PYTHONPATH}
-# export DATA_LOCATION="/home/xing/datasets/imagenet1k/train"
-# CUDA_VISIBLE_DEVICES="1" python train_netmind.py --val_data="/home/xing/datasets/imagenet1k/val"
-CUDA_VISIBLE_DEVICES="1" python train_netmind.py --data="/data/food-101/images"
+CUDA_VISIBLE_DEVICES="1" python train_netmind.py \
+--data="$YOUR_HOME_DIR/Netmind-examples/tensorflow/datasets/tiny-imagenet-200/train" \
+--val_data="$YOUR_HOME_DIR/Netmind-examples/tensorflow/datasets/tiny-imagenet-200/val"
