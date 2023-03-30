@@ -123,6 +123,7 @@ if __name__ == '__main__':
             test_accuracy.update_state(labels, predictions)
 
         return mirrored_strategy.run(test_step, args=(dataset_inputs,))
+    
 
 
     # Next, we create the input dataset and call `tf.distribute.Strategy.experimental_distribute_dataset` to distribute the dataset based on the strategy.
@@ -134,14 +135,22 @@ if __name__ == '__main__':
 
     # epochs_trained = nmp.cur_epoch
 
+    best_loss = None
+    template = ("Test Loss: {}, Test Accuracy: {}")
+    #save_dir = "best_loss/cp.ckpt"
+    save_dir = "best_loss"
+    os.makedirs(save_dir, exist_ok=True)
     for epoch in range(args.num_train_epochs):
         # TRAIN LOOP
         total_loss = 0.0
         num_batches = 0
+        print(f'model : {model.layers}')
         for ds in tqdm(train_data_iterator):
             loss_tmp = distributed_train_step(ds)
             total_loss += loss_tmp
             num_batches += 1
+            if num_batches > 200:
+                break
 
             train_loss = total_loss / train_num
             # netmind relatived
@@ -149,22 +158,55 @@ if __name__ == '__main__':
             train_monitor_metrics = {
                 "loss": float(train_loss.numpy())
             }
-        train_accuracy.reset_states()
-
-    eval_monitor_metrics = {
+        eval_monitor_metrics = {
             'eval loss': float(test_loss.result().numpy()),
             'eval-accuracy': float(test_accuracy.result().numpy())
-    }
-    template = ("Test Loss: {}, Test Accuracy: {}")
-
-    # TEST LOOP
-    for x in tqdm(test_data_iterator):
-        distributed_test_step(x)
-
-    print(template.format(test_loss.result(),
+        }
+        # TEST LOOP
+        for x in tqdm(test_data_iterator):
+            distributed_test_step(x)
+        print(template.format(test_loss.result(),
                           test_accuracy.result() * 100))
+                
+        if best_loss is None or test_loss < best_loss:
+            bestloss = test_loss
+            os.system(f"rm -rf {save_dir + '/*'}")
+            print(f'test_loss : {test_loss}, save model to {save_dir}')
+            model.save_weights(save_dir + "/cp.ckpt")
 
-    test_loss.reset_states()
-    test_accuracy.reset_states()
+
+        test_loss.reset_states()
+        test_accuracy.reset_states()    
+        train_accuracy.reset_states()
+    
+    independent_test_loss = tf.keras.metrics.SparseCategoricalCrossentropy(name="independent_test_loss",
+                                                                   from_logits=False)
+    independent_test_accuracy = tf.keras.metrics.SparseCategoricalAccuracy(
+                                                                name='independent_test_accuracy')
+    #best_model = tf.keras.models.load_weights(save_dir)
+    model.load_weights(save_dir)
+    @tf.function
+    def independent_test_step(dataset_inputs):
+
+        def test_step(inputs):
+            images, labels = inputs
+
+            predictions = model(images, training=False)
+
+            independent_test_loss.update_state(labels, predictions)
+            independent_test_accuracy.update_state(labels, predictions)
+
+        return mirrored_strategy.run(test_step, args=(dataset_inputs,))
+
+
+    # INDEPEDENT TEST LOOP
+    for x in tqdm(test_data_iterator):
+        independent_test_step(x)
+
+    print(template.format(independent_test_loss.result(),
+                          independent_test_accuracy.result() * 100))
+
+    independent_test_loss.reset_states()
+    independent_test_accuracy.reset_states()
 
     print(f'program exited.')
