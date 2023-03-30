@@ -19,22 +19,26 @@ compress_dict=[
         {"tensorflow/local": ("image-classification", "tf-resnet-trainer-raw.tar.gz")}
 ]
 
-copy_dir = "/Users/yang.li/Desktop/example"
-root_dir = os.getcwd()
 
-for info in compress_dict:
-    for k,v in info.items():
-        assert len(v) == 2
-        target_dir = k
-        compress_dir = v[0]
-        compress_file = v[1]
-        command = f"cd {target_dir}" \
-                  f"&& tar czvf {compress_file} {compress_dir}  " \
-                  f"&& cp {compress_file} {copy_dir } " \
-                  f"&& rm  {compress_file}" \
-                  f"&& cd {root_dir}"
-        ret = os.system(command)
-        if ret != 0:
-            print(f'command : {command} executed failed, ret : {ret}')
-            continue
-        print(f'command : {command} executed sucessfully, ret : {ret}')
+if __name__ == '__main__':
+    copy_dir = "/Users/yang.li/Desktop/example"
+    root_dir = os.getcwd()
+    failed_msgs = []
+    for info in compress_dict:
+        for k,v in info.items():
+            assert len(v) == 2
+            target_dir = k
+            compress_dir = v[0]
+            compress_file = v[1]
+            command = f"cd {target_dir}" \
+                      f"&& tar czvf {compress_file} {compress_dir}  " \
+                      f"&& cp {compress_file} {copy_dir } " \
+                      f"&& rm  {compress_file}" \
+                      f"&& cd {root_dir}"
+            ret = os.system(command)
+            if ret != 0:
+                failed_msgs.append(f'command : {command} executed failed, ret : {ret}')
+                continue
+            print(f'command : {command} executed sucessfully, ret : {ret}')
+    print(f'failed_msgs : {failed_msgs}')
+

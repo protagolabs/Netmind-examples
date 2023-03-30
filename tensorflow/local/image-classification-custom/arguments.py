@@ -24,6 +24,8 @@ def setup_args():
     # training setting
     parser.add_argument('--learning_rate', default=0.1, type=float, required=False, help='initial learning rate')
     parser.add_argument('--seed', default=1, type=int, required=False, help='training seed')
+
     parser.add_argument("--warmup_steps", default=5000, type=float)
+    return parser.parse_known_args()[0]
     
-    return parser.parse_args()
+
