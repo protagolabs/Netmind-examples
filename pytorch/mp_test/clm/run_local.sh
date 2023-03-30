@@ -1,0 +1,9 @@
+export PLATFORM=pytorch && python train_dist.py \
+--local_rank=0 \
+--data="../../data/gpt2" \
+--model_name_or_path=gpt2 \
+--per_device_train_batch_size=4 \
+--learning_rate=1e-4 \
+--num_train_epochs=1 \
+--save_step=1000000 \
+--output_dir="saved_model"

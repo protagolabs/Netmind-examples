@@ -27,20 +27,24 @@ def main(args):
     torch.manual_seed(0)
 
     nmp.init()
-    dateset_sampler = DistributedSampler(dataset)
+
     data_collator = default_data_collator
     dataloader = DataLoader(
         dataset, shuffle=False, collate_fn=data_collator, batch_size=args.per_device_train_batch_size, pin_memory=True,
-        sampler=dateset_sampler
     )
     # setup device
     device = torch.device("cuda:{}".format(args.local_rank))
     # GPU
     print('setup gpu')
-    model.to(device)
+    # Model is already put on gpu in get_model()
+    # model.to(device)
     # wrap the model
+    # ddp_model = NetmindDistributedModel(
+    #     torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank], output_device=args.local_rank)
+    # )
+
     ddp_model = NetmindDistributedModel(
-        torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank], output_device=args.local_rank)
+        model,
     )
 
     # Prepare optimizer
