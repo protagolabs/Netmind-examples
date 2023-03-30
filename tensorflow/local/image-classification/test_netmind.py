@@ -30,12 +30,6 @@ if __name__ == '__main__':
 
     multi_worker_mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
 
-    train_ds = tf.keras.preprocessing.image_dataset_from_directory(
-        args.data,
-        seed=1337,
-        image_size=args.input_shape[:2],
-        batch_size=global_batch_size,
-    )
     val_ds = tf.keras.preprocessing.image_dataset_from_directory(
         args.val_data,
         seed=1337,
@@ -44,13 +38,9 @@ if __name__ == '__main__':
     )
 
 
-
-    train_num = len(train_ds.file_paths)
     test_num = len(val_ds.file_paths)
-    category_num = len(train_ds.class_names)
+    category_num = 200 # same as the number of class in training data
 
-    # train_ds = train_ds.cache().repeat().prefetch(tf.data.AUTOTUNE)
-    train_ds = train_ds.repeat().prefetch(tf.data.AUTOTUNE)
 
     # First, we create the model and optimizer inside the strategy's scope. This ensures that any variables created with the model and optimizer are mirrored variables.
 
@@ -72,44 +62,16 @@ if __name__ == '__main__':
             metrics=tf.keras.metrics.SparseCategoricalAccuracy()
         )
 
-    # Next, we create the input dataset and call `tf.distribute.Strategy.experimental_distribute_dataset` to distribute the dataset based on the strategy.
-
-    train_data_iterator = multi_worker_mirrored_strategy.experimental_distribute_dataset(train_ds)
 
     #  eval
     # dataset_eval = test_iterator().batch(global_batch_size, drop_remainder=False)
     test_data_iterator = multi_worker_mirrored_strategy.experimental_distribute_dataset(val_ds)
 
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(
-        log_dir="tb_logs/snap",
-        histogram_freq=0,
-        write_graph=True,
-        write_images=False,
-        write_steps_per_second=False,
-        update_freq="epoch",
-        profile_batch=0,
-        embeddings_freq=0,
-        embeddings_metadata=None,
-    )
+    # 
+    model.load_weights("tb_logs/checkpoints") #  you may want to add the args here?
 
-    model_callback = tf.keras.callbacks.ModelCheckpoint(
-        filepath='tb_logs/checkpoints/',
-        monitor='evaluation_categorical_accuracy_vs_iterations',
-        verbose=0,
-        save_best_only=False,
-        save_weights_only=False,
-        save_freq="epoch",
-    )
-
-    batches_per_epoch = (train_num // global_batch_size)
-
-    all_callbacks = [tensorboard_callback, model_callback]
-
-    history = model.fit(
-        train_data_iterator,
-        validation_data=test_data_iterator if hasattr(args, "do_eval") and args.do_eval else None,
-        steps_per_epoch=train_num // global_batch_size,
-        validation_steps=test_num // global_batch_size if hasattr(args, "do_eval") and args.do_eval else None,
-        epochs=args.num_train_epochs,
-        callbacks=all_callbacks
-    )
+    results = model.evaluate(test_data_iterator, 
+                             steps=test_num // global_batch_size,
+                             batch_size=global_batch_size)
+    
+    print("test loss, test acc:", results)
