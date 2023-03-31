@@ -132,15 +132,16 @@ if __name__ == '__main__':
     train_data_iterator = mirrored_strategy.experimental_distribute_dataset(train_ds)
     #  eval
     # dataset_eval = test_iterator().batch(global_batch_size, drop_remainder=False)
-    test_data_iterator = mirrored_strategy.experimental_distribute_dataset(val_ds)
+    val_data_iterator = mirrored_strategy.experimental_distribute_dataset(val_ds)
     test_ds = val_ds
-    test_data_iterator2 = mirrored_strategy.experimental_distribute_dataset(test_ds)
+    test_data_iterator = mirrored_strategy.experimental_distribute_dataset(test_ds)
 
     # epochs_trained = nmp.cur_epoch
 
-    best_loss = None
+    #best_loss = tf.keras.metrics.SparseCategoricalCrossentropy(name="best_loss",
+    #                                                               from_logits=False)
+    best_loss_val = None
     template = ("Test Loss: {}, Test Accuracy: {}")
-    #save_dir = "best_loss/cp.ckpt"
     save_dir = "best_loss"
     os.makedirs(save_dir, exist_ok=True)
     for epoch in range(args.num_train_epochs):
@@ -166,21 +167,28 @@ if __name__ == '__main__':
             'eval-accuracy': float(test_accuracy.result().numpy())
         }
         # TEST LOOP
-        for x in tqdm(test_data_iterator):
+        for x in tqdm(val_data_iterator):
+            #if epoch == 0:
             distributed_test_step(x)
         print(template.format(test_loss.result(),
                           test_accuracy.result() * 100))
-                
-        if best_loss is None or test_loss < best_loss:
-            bestloss = test_loss
+        
+        if test_loss:
+            print(f'--test_loss: {test_loss.result()}')
+        if best_loss_val:
+            print(f'--best_loss : {best_loss_val}')
+        if best_loss_val is None  or test_loss.result() < best_loss_val:
+            best_loss_val = test_loss.result()
             os.system(f"rm -rf {save_dir + '/*'}")
-            print(f'test_loss : {test_loss}, best_loss: {best_loss}, save model to {save_dir}')
+            print(f'test_loss : {test_loss.result()}, best_loss: {best_loss_val}')
+            print(f'save model to {save_dir}')
             model.save_weights(save_dir + "/cp.ckpt")
 
 
         test_loss.reset_states()
         test_accuracy.reset_states()    
         train_accuracy.reset_states()
+        print('\n')
     
     independent_test_loss = tf.keras.metrics.SparseCategoricalCrossentropy(name="independent_test_loss",
                                                                    from_logits=False)
@@ -203,7 +211,7 @@ if __name__ == '__main__':
 
 
     # INDEPEDENT TEST LOOP
-    for x in tqdm(test_data_iterator2):
+    for x in tqdm(test_data_iterator):
         independent_test_step(x)
 
     print(template.format(independent_test_loss.result(),
