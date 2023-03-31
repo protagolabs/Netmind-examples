@@ -1,25 +1,15 @@
-# Train Resnet50 on Imagenet without Trainer
-## prepare the imagenet dataset
+# Train Resnet50 without Trainer
+## prepare the dataset
 
-* Please access the download the imagenet-ilsvrc2012 dataset from [here](https://image-net.org/index.php).
+* choose the dataset you want in "dataset" directory.
 
-* The Training images (Task 1 & 2) is about 138GB and the  Validation images (all tasks) is about 6.3GB.
+* we use the tiny-imagenet dataset in train_netmind.py
 
-* unzip the datasets by using the following script in the download directory
-```bash
-bash extract_ILSVRC.sh
-```
-
-## local
-
-* model training
-```bash
-python train.py --data="/home/xing/datasets/imagenet1k/train" --val_data="/home/xing/datasets/imagenet1k/val"
-```
 
 ## netmind platform
 * Run locally with netmind-mixin
-    1. install the [netmind-mixin library](https://github.com/protagolabs/NetMind-Mixin/tree/feature-tf-netmind), make sure you install from the tensorflow branch!
+    1. follow the [Installation](https://github.com/protagolabs/Netmind-examples/tree/main) section in main page.
+
     2. create the config.py file as add your ip information (you can access those information by "ifconfig") to each gpu (2 gpus):
         ```bash
         tf_config = {
@@ -31,7 +21,7 @@ python train.py --data="/home/xing/datasets/imagenet1k/train" --val_data="/home/
         ```
         **"192.168.1.16" is the ip on my single machine, if you have different gpus on different machines, please use the correct ones.**
 
-    2. modify your code and adopt to the netmind-mixin as follows (you can compare the train.py with train_netmind.py for more details):
+    3. modify your code as follows (you can compare the train_netmind.py in corresponding [local tasks](https://github.com/protagolabs/Netmind-examples/tree/main/tensorflow/local) and current directory for more details):
 
         * add netmind class
             ![add netmind callbacks](imgs/Screenshot-2022-09-12-103929.jpg)
