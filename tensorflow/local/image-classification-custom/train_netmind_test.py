@@ -38,6 +38,7 @@ if __name__ == '__main__':
         validation_split=0.2,
         subset="validation",
         seed=1337,
+        shuffle=False,
         image_size=args.input_shape[:2],
         batch_size=global_batch_size,
     )
@@ -132,6 +133,8 @@ if __name__ == '__main__':
     #  eval
     # dataset_eval = test_iterator().batch(global_batch_size, drop_remainder=False)
     test_data_iterator = mirrored_strategy.experimental_distribute_dataset(val_ds)
+    test_ds = val_ds
+    test_data_iterator2 = mirrored_strategy.experimental_distribute_dataset(test_ds)
 
     # epochs_trained = nmp.cur_epoch
 
@@ -171,7 +174,7 @@ if __name__ == '__main__':
         if best_loss is None or test_loss < best_loss:
             bestloss = test_loss
             os.system(f"rm -rf {save_dir + '/*'}")
-            print(f'test_loss : {test_loss}, save model to {save_dir}')
+            print(f'test_loss : {test_loss}, best_loss: {best_loss}, save model to {save_dir}')
             model.save_weights(save_dir + "/cp.ckpt")
 
 
@@ -200,7 +203,7 @@ if __name__ == '__main__':
 
 
     # INDEPEDENT TEST LOOP
-    for x in tqdm(test_data_iterator):
+    for x in tqdm(test_data_iterator2):
         independent_test_step(x)
 
     print(template.format(independent_test_loss.result(),
