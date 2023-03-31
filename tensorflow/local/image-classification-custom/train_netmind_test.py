@@ -184,7 +184,7 @@ if __name__ == '__main__':
     independent_test_accuracy = tf.keras.metrics.SparseCategoricalAccuracy(
                                                                 name='independent_test_accuracy')
     #best_model = tf.keras.models.load_weights(save_dir)
-    model.load_weights(save_dir)
+    model.load_weights(save_dir + "/cp.ckpt")
     @tf.function
     def independent_test_step(dataset_inputs):
 
