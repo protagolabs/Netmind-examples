@@ -148,7 +148,6 @@ if __name__ == '__main__':
         # TRAIN LOOP
         total_loss = 0.0
         num_batches = 0
-        print(f'model : {model.layers}')
         for ds in tqdm(train_data_iterator):
             loss_tmp = distributed_train_step(ds)
             total_loss += loss_tmp
@@ -158,7 +157,6 @@ if __name__ == '__main__':
 
             train_loss = total_loss / train_num
             # netmind relatived
-            # print(f'loss : {float(train_loss.numpy())} ')
             train_monitor_metrics = {
                 "loss": float(train_loss.numpy())
             }
@@ -168,20 +166,14 @@ if __name__ == '__main__':
         }
         # TEST LOOP
         for x in tqdm(val_data_iterator):
-            #if epoch == 0:
             distributed_test_step(x)
         print(template.format(test_loss.result(),
                           test_accuracy.result() * 100))
         
-        if test_loss:
-            print(f'--test_loss: {test_loss.result()}')
-        if best_loss_val:
-            print(f'--best_loss : {best_loss_val}')
         if best_loss_val is None  or test_loss.result() < best_loss_val:
             best_loss_val = test_loss.result()
             os.system(f"rm -rf {save_dir + '/*'}")
-            print(f'test_loss : {test_loss.result()}, best_loss: {best_loss_val}')
-            print(f'save model to {save_dir}')
+            #print(f'test_loss : {test_loss.result()}, best_loss: {best_loss_val}')
             model.save_weights(save_dir + "/cp.ckpt")
 
 
@@ -194,7 +186,7 @@ if __name__ == '__main__':
                                                                    from_logits=False)
     independent_test_accuracy = tf.keras.metrics.SparseCategoricalAccuracy(
                                                                 name='independent_test_accuracy')
-    #best_model = tf.keras.models.load_weights(save_dir)
+    
     model.load_weights(save_dir + "/cp.ckpt")
     @tf.function
     def independent_test_step(dataset_inputs):
