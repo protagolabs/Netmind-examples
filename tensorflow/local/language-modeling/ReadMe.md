@@ -14,7 +14,10 @@ pip install datasets==2.4.0
 ```bash
 python predata.py
 ```
-You should see the new folder named "data_mlm" under the current directory.
+You should see the new folder named "data_mlm" under the current directory.  
+When you ant to train job on netmind platform, you should package directory "data_mlm" to zip, tar.gz, or tar, 
+and upload to the platform.  
+Anather way, if you have processed dataset, you also use it directly.
 
 
 * model training

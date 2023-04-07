@@ -44,9 +44,8 @@ if __name__ == '__main__':
     )
 
 
-
     train_num = len(train_ds.file_paths)
-    test_num = len(val_ds.file_paths)
+    val_num = len(val_ds.file_paths)
     category_num = len(train_ds.class_names)
 
     train_ds = train_ds.prefetch(tf.data.AUTOTUNE)
@@ -68,13 +67,13 @@ if __name__ == '__main__':
             return tf.nn.compute_average_loss(per_example_loss, global_batch_size=global_batch_size)
 
 
-        test_loss = tf.keras.metrics.SparseCategoricalCrossentropy(name="test_loss",
+        val_loss = tf.keras.metrics.SparseCategoricalCrossentropy(name="val_loss",
                                                                    from_logits=False)
 
         train_accuracy = tf.keras.metrics.SparseCategoricalAccuracy(
             name='train_accuracy')
-        test_accuracy = tf.keras.metrics.SparseCategoricalAccuracy(
-            name='test_accuracy')
+        val_accuracy = tf.keras.metrics.SparseCategoricalAccuracy(
+            name='val_accuracy')
 
         inputs = tf.keras.Input(shape=args.input_shape)
 
@@ -113,15 +112,15 @@ if __name__ == '__main__':
 
 
     @tf.function
-    def distributed_test_step(dataset_inputs):
+    def distributed_val_step(dataset_inputs):
 
         def test_step(inputs):
             images, labels = inputs
 
             predictions = model(images, training=False)
 
-            test_loss.update_state(labels, predictions)
-            test_accuracy.update_state(labels, predictions)
+            val_loss.update_state(labels, predictions)
+            val_accuracy.update_state(labels, predictions)
 
         return mirrored_strategy.run(test_step, args=(dataset_inputs,))
     
@@ -161,24 +160,23 @@ if __name__ == '__main__':
                 "loss": float(train_loss.numpy())
             }
         eval_monitor_metrics = {
-            'eval loss': float(test_loss.result().numpy()),
-            'eval-accuracy': float(test_accuracy.result().numpy())
+            'eval loss': float(val_loss.result().numpy()),
+            'eval-accuracy': float(val_accuracy.result().numpy())
         }
         # TEST LOOP
         for x in tqdm(val_data_iterator):
-            distributed_test_step(x)
-        print(template.format(test_loss.result(),
-                          test_accuracy.result() * 100))
+            distributed_val_step(x)
+        print(template.format(val_loss.result(),
+                          val_accuracy.result() * 100))
         
-        if best_loss_val is None  or test_loss.result() < best_loss_val:
-            best_loss_val = test_loss.result()
+        if best_loss_val is None  or val_loss.result() < best_loss_val:
+            best_loss_val = val_loss.result()
             os.system(f"rm -rf {save_dir + '/*'}")
-            #print(f'test_loss : {test_loss.result()}, best_loss: {best_loss_val}')
             model.save_weights(save_dir + "/cp.ckpt")
 
 
-        test_loss.reset_states()
-        test_accuracy.reset_states()    
+        val_loss.reset_states()
+        val_accuracy.reset_states()
         train_accuracy.reset_states()
         print('\n')
     
