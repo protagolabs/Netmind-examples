@@ -6,7 +6,7 @@ import torch.distributed as dist
 import torch.optim
 from torch.utils.data import DataLoader
 from torch.utils.data.distributed import DistributedSampler
-from argument import setup_args
+from arguments import setup_args
 from model import get_model
 from data import get_data
 from optimizer import get_optimizer
@@ -55,7 +55,7 @@ def main(args):
     train(train_loader, train_sampler, val_loader, model, criterion, optimizer, args, device)
 
     
-if __name__ == '__main__':
+if __name__ == '__main':
     try:
         args = setup_args()
 
