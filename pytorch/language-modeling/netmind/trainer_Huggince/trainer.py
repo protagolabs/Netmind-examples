@@ -71,5 +71,5 @@ def train(tokenizer, data_collator, tokenized_datasets, model, optimizer, args):
 
     
     if args.do_train:
-        latest_checkpoint = nmp.last_checkpoint_from_netmind()
+        latest_checkpoint = nmp.last_checkpoint_from_netmindd()
         trainer.train(resume_from_checkpoint=latest_checkpoint)

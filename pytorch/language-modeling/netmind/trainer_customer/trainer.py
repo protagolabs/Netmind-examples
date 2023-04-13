@@ -33,9 +33,6 @@ def train(dataloader, model, optimizer, args, device):
         # setup loop
         for batch in dataloader:
 
-            if nmp.should_skip_step():
-                continue
-
             t_total += 1
             # initialize calculated gradients (from prev step)
             optimizer.zero_grad()

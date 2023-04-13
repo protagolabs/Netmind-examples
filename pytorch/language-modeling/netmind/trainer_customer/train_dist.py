@@ -32,7 +32,6 @@ def main(args):
     #set up distributed backend
     torch.manual_seed(0)
 
-    nmp.init()
     dateset_sampler = DistributedSampler(dataset)
     data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm_probability=0.15)
     dataloader = DataLoader(
@@ -43,12 +42,7 @@ def main(args):
     # GPU
     print('setup gpu')
     model.to(device)
-    # wrap the model
-    ddp_model = NetmindDistributedModel(
-        torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank], output_device=args.local_rank)
-    )
 
-    
     
     # Prepare optimizer
     # start train
