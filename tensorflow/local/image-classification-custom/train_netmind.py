@@ -34,7 +34,7 @@ if __name__ == '__main__':
         batch_size=global_batch_size,
     )
     val_ds = tf.keras.preprocessing.image_dataset_from_directory(
-        args.data,
+        args.val_data,
         validation_split=0.2,
         subset="validation",
         seed=1337,

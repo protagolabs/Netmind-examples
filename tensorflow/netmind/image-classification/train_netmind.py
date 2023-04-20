@@ -37,13 +37,13 @@ if __name__ == '__main__':
     multi_worker_mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
 
     train_ds = tf.keras.preprocessing.image_dataset_from_directory(
-        args.data + "/train",
+        args.data,
         seed=args.seed,
         image_size=args.input_shape[:2],
         batch_size=global_batch_size,
     )
     val_ds = tf.keras.preprocessing.image_dataset_from_directory(
-        args.data + "/val",
+        args.val_data,
         seed=args.seed,
         image_size=args.input_shape[:2],
         batch_size=global_batch_size,
