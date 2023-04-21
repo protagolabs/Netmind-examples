@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
     # you can use smaller data for code checking like food-101 dataset
     train_ds = tf.keras.preprocessing.image_dataset_from_directory(
-        args.data,
+        args.data + "/train",
         validation_split=0.2,
         subset="training",
         seed=1337,
@@ -34,7 +34,7 @@ if __name__ == '__main__':
         batch_size=global_batch_size,
     )
     val_ds = tf.keras.preprocessing.image_dataset_from_directory(
-        args.val_data,
+        args.data + "/val",
         validation_split=0.2,
         subset="validation",
         seed=1337,
