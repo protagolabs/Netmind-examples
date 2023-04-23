@@ -55,7 +55,7 @@ def main(args):
     train(train_loader, train_sampler, val_loader, model, criterion, optimizer, args, device)
 
     
-if __name__ == '__main':
+if __name__ == '__main__':
     try:
         args = setup_args()
 

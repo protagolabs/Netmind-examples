@@ -32,7 +32,7 @@ def main(args):
     torch.manual_seed(0)
     dist.init_process_group(backend='nccl')
 
-    dateset_sampler = DistributedSamplerr(dataset)
+    dateset_sampler = DistributedSampler(dataset)
     data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm_probability=0.15)
     dataloader = DataLoader(
         dataset, shuffle=False, collate_fn=data_collator, batch_size=args.per_device_train_batch_size, pin_memory=True,sampler=dateset_sampler
@@ -43,11 +43,11 @@ def main(args):
     print('setup gpu')
     model.to(device)
     # wrap the model
-    ddp_model = torch.nn.parallel.DistributedDataParallelr(model, device_ids=[args.local_rank], output_device=args.local_rank)
+    ddp_model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank], output_device=args.local_rank)
     
     
     # Prepare optimizer
-    optimizer = get_optimizerr(ddp_model,args)
+    optimizer = get_optimizer(ddp_model,args)
     # start train
     train(dataloader, ddp_model, optimizer, args, device)
 

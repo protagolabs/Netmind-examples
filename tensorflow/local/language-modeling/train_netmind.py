@@ -13,7 +13,7 @@ args = setup_args()
 logger = logging.getLogger(__name__)
 
 
-class CustomTrainerCallbackk(tf.keras.callbacks.Callback):
+class CustomTrainerCallback(tf.keras.callbacks.Callback):
     # Hugging Face models have a save_pretrained() method that saves both the weights and the necessary
     # metadata to allow them to be loaded as a pretrained model in future. This is a simple Keras callback
     # that saves the model with this method after each epoch.
@@ -182,7 +182,7 @@ if __name__ == '__main__':
     logger.info(f"  Instantaneous batch size per device = {args.per_device_train_batch_size}")
     logger.info(f"  Total train batch size = {args.per_device_train_batch_size * n_workers}")
 
-    history = model.fitf(
+    history = model.fit(
         tf_train_dataset,
         # validation_data=tf_eval_dataset,
         epochs=int(args.num_train_epochs),

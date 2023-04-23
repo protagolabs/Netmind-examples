@@ -20,8 +20,6 @@ tqdm.pandas()
 def main(args):
     assert (torch.cuda.is_available())
 
-    
-
     model, tokenizer = get_model(args)
     dataset = get_data(args)
 
