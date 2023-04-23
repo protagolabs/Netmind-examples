@@ -38,7 +38,7 @@ class CustomTrainerCallback(transformers.TrainerCallback):
         kwargs["custom_metrics"] = {}
         return super().on_evaluate(args, state, control **kwargs)
 
-def trainer(tokenizer, data_collator, tokenized_datasets, model, optimizer, args):
+def train(tokenizer, data_collator, tokenized_datasets, model, optimizer, args):
     print('start training')
 
     # set up schedule if needed
