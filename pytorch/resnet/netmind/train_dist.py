@@ -7,7 +7,7 @@ import torch.distributed as dist
 import torch.optim
 from torch.utils.data import DataLoader
 from torch.utils.data.distributed import DistributedSampler
-from argument import setup_args
+from arguments import setup_args
 from model import get_model
 from data import get_data
 from optimizer import get_optimizer
