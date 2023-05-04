@@ -43,5 +43,5 @@ for info in compress_dict:
         ret = os.system(command)
         if ret != 0:
             print(f'command : {command} executed failed, ret : {ret}')
-            continue
+            raise
         print(f'command : {command} executed sucessfully, ret : {ret}')
