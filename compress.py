@@ -1,22 +1,29 @@
 import os
+
+env = 'netmind' # local netmind
+env_suffix_dict = {
+    'local': 'raw',
+    'netmind': 'automated'
+}
+suffix = env_suffix_dict[env] # raw
 compress_dict=[
-        {"hivemind/language-modeling/local" : ("trainer_customer" , "hivemind_mlm_custom_raw.tar.gz")},
+        #{f"hivemind/language-modeling/{env}" : ("trainer_customer" , "hivemind_mlm_custom_raw.tar.gz")},
 
-        {"hivemind/language-modeling/local" : ("trainer_Huggince" ,"hivemind_mlm_trainer_raw.tar.gz")},
+        #{f"hivemind/language-modeling/{env}" : ("trainer_Huggince" ,"hivemind_mlm_trainer_raw.tar.gz")},
 
-        {"hivemind/resnet" : ("local", "hivemind-resnet-raw.tar.gz")},
+        #{f"hivemind/resnet" : (f"{env}", "hivemind-resnet-raw.tar.gz")},
 
-        {"pytorch/language-modeling/local" : ("trainer_customer", "torch_mlm_custom_trainer_raw.tar.gz")},
+        {f"pytorch/language-modeling/{env}" : ("trainer_customer", f"torch_mlm_custom_trainer_{suffix}.tar.gz")},
 
-        {"pytorch/language-modeling/local" : ("trainer_Huggince", "torch_mlm_transformers_trainer_raw.tar.gz")},
+        {f"pytorch/language-modeling/{env}" : ("trainer_Huggince", f"torch_mlm_transformers_trainer_{suffix}.tar.gz")},
 
-        {"pytorch/resnet": ("local", "torch_resnet_custom_raw.tar.gz")},
+        {"pytorch/resnet": (f"{env}", f"torch_resnet_custom_{suffix}.tar.gz")},
 
-        {"tensorflow/local": ("language-modeling" , "tf-mlm-trainer-raw.tar.gz")},
+        {f"tensorflow/{env}": ("language-modeling" , f"tf-mlm-trainer-{suffix}.tar.gz")},
 
-        {"tensorflow/local": ("image-classification-custom", "tf-resnet-custom-raw.tar.gz")},
+        {f"tensorflow/{env}": ("image-classification-custom", f"tf-resnet-custom-{suffix}.tar.gz")},
 
-        {"tensorflow/local": ("image-classification", "tf-resnet-trainer-raw.tar.gz")}
+        {f"tensorflow/{env}": ("image-classification", f"tf-resnet-trainer-{suffix}.tar.gz")}
 ]
 
 copy_dir = "/Users/yang.li/Desktop/example"
@@ -36,5 +43,5 @@ for info in compress_dict:
         ret = os.system(command)
         if ret != 0:
             print(f'command : {command} executed failed, ret : {ret}')
-            continue
+            raise
         print(f'command : {command} executed sucessfully, ret : {ret}')
