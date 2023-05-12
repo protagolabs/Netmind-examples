@@ -44,4 +44,5 @@ for info in compress_dict:
         if ret != 0:
             print(f'command : {command} executed failed, ret : {ret}')
             raise
+
         print(f'command : {command} executed sucessfully, ret : {ret}')
