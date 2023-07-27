@@ -6,7 +6,7 @@ import os
 class ModelTrainingArguments(TrainingArguments):
     model_name_or_path: str = 'roberta-base'
     data: str = 'data/bert'
-    local_rank: int = os.getenv('LOCAL_RANK', -1) # set to run the distributed training
+    local_rank: int = os.getenv('LOCAL_RANK', 0) # set to run the distributed training
 
     dataloader_num_workers: int = 1
     per_device_train_batch_size: int = 16
