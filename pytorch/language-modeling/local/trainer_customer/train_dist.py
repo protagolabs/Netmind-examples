@@ -30,7 +30,6 @@ def main(args):
 
     #set up distributed backend
     torch.manual_seed(0)
-    dist.init_process_group(backend='nccl')
 
     dateset_sampler = DistributedSampler(dataset)
     data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm_probability=0.15)

@@ -35,7 +35,7 @@ def setup_args():
     # distributed learning
     parser.add_argument("--local_rank",
                         type=int,
-                        default=os.getenv('LOCAL_RANK', 0),
+                        default=os.getenv('LOCAL_RANK', -1),
                         help="Local rank. Necessary for using the torch.distributed.launch utility")
 
     return parser.parse_known_args()[0]

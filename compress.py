@@ -45,4 +45,4 @@ for info in compress_dict:
             print(f'command : {command} executed failed, ret : {ret}')
             raise
 
-        print(f'command : {command} executed sucessfully, ret : {ret}')
+        #print(f'command : {command} executed sucessfully, ret : {ret}')

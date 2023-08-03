@@ -21,7 +21,6 @@ def main(args):
     train_dataset, val_datset = get_data(args)
 
     torch.manual_seed(0)
-    dist.init_process_group(backend='nccl')
 
     train_sampler = DistributedSampler(train_dataset)
     train_loader = DataLoader(
