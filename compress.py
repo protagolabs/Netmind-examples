@@ -1,6 +1,6 @@
 import os
 
-env = 'netmind' # local netmind
+env = 'local' # local netmind
 env_suffix_dict = {
     'local': 'raw',
     'netmind': 'automated'
@@ -13,11 +13,15 @@ compress_dict=[
 
         #{f"hivemind/resnet" : (f"{env}", "hivemind-resnet-raw.tar.gz")},
 
-        {f"pytorch/language-modeling/{env}" : ("trainer_customer", f"torch_mlm_custom_trainer_{suffix}.tar.gz")},
+        {f"pytorch/language-modeling/{env}" : ("trainer_customer_ddp", f"torch_mlm_custom_trainer_ddp_{suffix}.tar.gz")},
+
+        {f"pytorch/language-modeling/{env}" : ("trainer_customer_no_ddp", f"torch_mlm_custom_trainer_no_ddp_{suffix}.tar.gz")},
 
         {f"pytorch/language-modeling/{env}" : ("trainer_Huggince", f"torch_mlm_transformers_trainer_{suffix}.tar.gz")},
 
-        {"pytorch/resnet": (f"{env}", f"torch_resnet_custom_{suffix}.tar.gz")},
+        {f"pytorch/resnet/{env}": (f"trainer_customer_ddp", f"torch_resnet_custom_ddp_{suffix}.tar.gz")},
+
+        {f"pytorch/resnet/{env}": (f"trainer_customer_no_ddp", f"torch_resnet_custom_no_ddp_{suffix}.tar.gz")},
 
         {f"tensorflow/{env}": ("language-modeling" , f"tf-mlm-trainer-{suffix}.tar.gz")},
 
