@@ -3,6 +3,10 @@ from dataclasses import dataclass, field
 import os
 import transformers
 
+"""
+We define the model arguments here, noted that we do not setup wandb in the arguments/file, 
+because it requres the key. We would allow to add wandb function later.
+"""
 training_args = Seq2SeqTrainingArguments(
     f"saved_model",
     seed = 32,
@@ -23,11 +27,17 @@ training_args = Seq2SeqTrainingArguments(
     report_to="none",
 )
 
+"""
+Load dataset.
+"""
 from datasets import load_dataset
 
 note = load_dataset("elricwan/nonDisco_notes")
 trend = load_dataset("elricwan/nonDisco_trend")
 
+"""
+Load model and tokenizer.
+"""
 from transformers import (
     T5Tokenizer,
     T5Model,
@@ -48,6 +58,9 @@ model_name_or_path = 't5-small'
 config = T5Config.from_pretrained(model_name_or_path)
 model = T5ForConditionalGeneration(config)
 
+"""
+Prepare dataset.
+"""
 from torch.utils.data import Dataset
 class CDNDataset(Dataset):
     def __init__(self, samples):
@@ -70,6 +83,9 @@ train_data = CDNDataset(train_data)
 
 data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=model)
 
+"""
+Load optimizer.
+"""
 from torch_optimizer import Adafactor
 from torch.nn.utils import clip_grad_norm_
 from transformers import get_linear_schedule_with_warmup
@@ -93,10 +109,11 @@ scheduler = get_linear_schedule_with_warmup(
     optimizer, num_warmup_steps=training_args.warmup_steps, num_training_steps=schedule_total
 )
 
+"""
+Load function requred by netmind platform.
+"""
 from NetmindMixins.Netmind import nmp, NetmindTrainerCallback
 
-#!export PLATFORM=pytorch
-# os.environ['PLATFORM']="pytorch"
 nmp.init()
 class CustomTrainerCallback(NetmindTrainerCallback):
     def __init__(self):
@@ -121,7 +138,9 @@ class CustomTrainerCallback(NetmindTrainerCallback):
         return super().on_evaluate(args, state, control ** kwargs)
     
 
-
+"""
+Load trainer and start training.
+"""
 trainer = Seq2SeqTrainer(
     model=model,
     args=training_args,
