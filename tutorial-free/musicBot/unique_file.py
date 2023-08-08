@@ -25,6 +25,7 @@ training_args = Seq2SeqTrainingArguments(
     save_steps=5000,
     fp16=True,
     report_to="none",
+    do_train=True,
 )
 
 """
