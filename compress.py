@@ -1,52 +1,51 @@
 import os
 
-env = 'local' # local netmind
+env_list = ['local', 'netmind'] # local netmind
 env_suffix_dict = {
     'local': 'raw',
     'netmind': 'automated'
 }
-suffix = env_suffix_dict[env] # raw
+
 compress_dict=[
-        #{f"hivemind/language-modeling/{env}" : ("trainer_customer" , "hivemind_mlm_custom_raw.tar.gz")},
+        {"pytorch/language-modeling/{}" : ("trainer_customer_ddp", "torch_mlm_custom_trainer_ddp_{}.tar.gz")},
 
-        #{f"hivemind/language-modeling/{env}" : ("trainer_Huggince" ,"hivemind_mlm_trainer_raw.tar.gz")},
+        {"pytorch/language-modeling/{}" : ("trainer_customer_no_ddp", "torch_mlm_custom_trainer_no_ddp_{}.tar.gz")},
 
-        #{f"hivemind/resnet" : (f"{env}", "hivemind-resnet-raw.tar.gz")},
+        {"pytorch/language-modeling/{}" : ("trainer_Huggince", "torch_mlm_transformers_trainer_{}.tar.gz")},
 
-        {f"pytorch/language-modeling/{env}" : ("trainer_customer_ddp", f"torch_mlm_custom_trainer_ddp_{suffix}.tar.gz")},
+        {"pytorch/resnet/{}": (f"trainer_customer_ddp", "torch_resnet_custom_ddp_{}.tar.gz")},
 
-        {f"pytorch/language-modeling/{env}" : ("trainer_customer_no_ddp", f"torch_mlm_custom_trainer_no_ddp_{suffix}.tar.gz")},
+        {"pytorch/resnet/{}": (f"trainer_customer_no_ddp", "torch_resnet_custom_no_ddp_{}.tar.gz")},
 
-        {f"pytorch/language-modeling/{env}" : ("trainer_Huggince", f"torch_mlm_transformers_trainer_{suffix}.tar.gz")},
+        {"tensorflow/{}": ("language-modeling" , "tf-mlm-trainer-{}.tar.gz")},
 
-        {f"pytorch/resnet/{env}": (f"trainer_customer_ddp", f"torch_resnet_custom_ddp_{suffix}.tar.gz")},
+        {"tensorflow/{}": ("image-classification-custom", "tf-resnet-custom-{}.tar.gz")},
 
-        {f"pytorch/resnet/{env}": (f"trainer_customer_no_ddp", f"torch_resnet_custom_no_ddp_{suffix}.tar.gz")},
-
-        {f"tensorflow/{env}": ("language-modeling" , f"tf-mlm-trainer-{suffix}.tar.gz")},
-
-        {f"tensorflow/{env}": ("image-classification-custom", f"tf-resnet-custom-{suffix}.tar.gz")},
-
-        {f"tensorflow/{env}": ("image-classification", f"tf-resnet-trainer-{suffix}.tar.gz")}
+        {"tensorflow/{}": ("image-classification", "tf-resnet-trainer-{}.tar.gz")}
 ]
 
 copy_dir = "/Users/yang.li/Desktop/example"
 root_dir = os.getcwd()
 
-for info in compress_dict:
-    for k,v in info.items():
-        assert len(v) == 2
-        target_dir = k
-        compress_dir = v[0]
-        compress_file = v[1]
-        command = f"cd {target_dir}" \
-                  f"&& tar czvf {compress_file} {compress_dir}  " \
-                  f"&& cp {compress_file} {copy_dir } " \
-                  f"&& rm  {compress_file}" \
-                  f"&& cd {root_dir}"
-        ret = os.system(command)
-        if ret != 0:
-            print(f'command : {command} executed failed, ret : {ret}')
-            raise
+for env in env_list:
+    for info in compress_dict:
+        for k,v in info.items():
 
-        #print(f'command : {command} executed sucessfully, ret : {ret}')
+                assert len(v) == 2
+                target_dir = k
+                compress_dir = v[0]
+                compress_file = v[1]
+                suffix = env_suffix_dict[env]
+                compress_file = compress_file.format(suffix)
+
+                command = f"cd {target_dir.format(env)}" \
+                          f"&& tar czvf {compress_file} {compress_dir}  " \
+                          f"&& cp {compress_file} {copy_dir } " \
+                          f"&& rm  {compress_file}" \
+                          f"&& cd {root_dir}"
+                ret = os.system(command)
+                if ret != 0:
+                    print(f'command : {command} executed failed, ret : {ret}')
+                    raise
+
+                print(f'command : {command} executed sucessfully, ret : {ret}')
