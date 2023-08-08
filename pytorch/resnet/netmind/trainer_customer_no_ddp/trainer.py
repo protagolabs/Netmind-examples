@@ -13,15 +13,13 @@ import torch
 
 
 def train(train_loader, train_sampler, val_loader, model, criterion, optimizer, args, device):
-    
+
     best_acc1 = 0
     epoch = nmp.cur_epoch
     for epoch in range(epoch, args.num_train_epochs):
 
-        # shuffle the training data at every epoch
-        train_sampler.set_epoch(epoch)
         adjust_learning_rate(optimizer, epoch, args)
-    
+
         batch_time = AverageMeter('Time', ':6.3f')
         data_time = AverageMeter('Data', ':6.3f')
         losses = AverageMeter('Loss', ':.4e')
@@ -34,7 +32,7 @@ def train(train_loader, train_sampler, val_loader, model, criterion, optimizer, 
 
         # switch to train mode
         model.train()
-        
+
 
         end = time.time()
         for i, (images, target) in enumerate(train_loader):
@@ -43,7 +41,7 @@ def train(train_loader, train_sampler, val_loader, model, criterion, optimizer, 
                 continue
             data_time.update(time.time() - end)
 
-            
+
             images = images.cuda(device, non_blocking=True)
             target = target.cuda(device, non_blocking=True)
 
@@ -107,7 +105,7 @@ def validate(val_loader, model, criterion, args, device):
     with torch.no_grad():
         end = time.time()
         for i, (images, target) in enumerate(val_loader):
-            
+
             images = images.cuda(device, non_blocking=True)
             target = target.cuda(device, non_blocking=True)
 

@@ -37,7 +37,7 @@ def main(args):
         dataset, shuffle=False, collate_fn=data_collator, batch_size=args.per_device_train_batch_size, pin_memory=True,sampler=dateset_sampler
     )
     # setup device
-    device = torch.device("cuda:{}".format(args.local_rank))
+    device = torch.device("cuda:0")
     # GPU
     print('setup gpu')
     model.to(device)

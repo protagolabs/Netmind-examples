@@ -3,7 +3,6 @@ import torch
 import torch.nn as nn
 import torch.nn.parallel
 import torch.backends.cudnn as cudnn
-import torch.distributed as dist
 import torch.optim
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SequentialSampler
@@ -35,16 +34,13 @@ def main(args):
         num_workers=args.workers, pin_memory=True)
 
     # setup device
-    device = torch.device("cuda:{}".format(args.local_rank))
+    device = torch.device("cuda:0")
     # GPU
     print('setup gpu')
     model.to(device)
     # wrap the model
     model = NetmindDistributedModel(model)
 
-
-    # wait until data/model has loaded
-    dist.barrier()
 
     # Prepare optimizer
 

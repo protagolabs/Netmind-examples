@@ -33,7 +33,7 @@ def main(args):
         num_workers=args.workers, pin_memory=True)
 
     # setup device
-    device = torch.device("cuda:{}".format(args.local_rank))
+    device = torch.device("cuda:0")
     # GPU
     print('setup gpu')
     model.to(device)

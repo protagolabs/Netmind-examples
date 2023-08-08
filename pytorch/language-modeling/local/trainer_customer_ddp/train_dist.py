@@ -17,6 +17,8 @@ from optimizer import get_optimizer
 from trainer import train
 import logging
 from arguments import setup_args
+import torch.distributed as dist
+
 tqdm.pandas()
 
 
@@ -43,14 +45,14 @@ def main(args):
     model.to(device)
     # wrap the model
     ddp_model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank], output_device=args.local_rank)
-    
-    
+
+    dist.barrier()
     # Prepare optimizer
     optimizer = get_optimizer(ddp_model,args)
     # start train
     train(dataloader, ddp_model, optimizer, args, device)
 
-    
+
 if __name__ == '__main__':
     try:
         args = setup_args()
