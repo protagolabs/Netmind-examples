@@ -6,6 +6,7 @@ import transformers
 """
 We define the model arguments here, noted that we do not setup wandb in the arguments/file, 
 because it requres the key. We would allow to add wandb function later.
+We need to setup do_train=True to make platform train.
 """
 training_args = Seq2SeqTrainingArguments(
     f"saved_model",
