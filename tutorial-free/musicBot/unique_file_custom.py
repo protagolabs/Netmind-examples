@@ -5,6 +5,7 @@ We define the model arguments here
 from dataclasses import dataclass, field
 import os
 import argparse
+import torch
 
 def setup_args():
     """
