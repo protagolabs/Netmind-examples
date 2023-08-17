@@ -210,6 +210,6 @@ ddp_model = NetmindDistributedModel(
     )
 optimizer = NetmindOptimizer(get_optimizer(ddp_model, training_args))
 nmp.init_train_bar(total_epoch=training_args.num_train_epochs, step_per_epoch=len(dataloader))
-train(dataloader, training_args, ddp_model, optimizer, device)
+train(dataloader, training_args, ddp_model, optimizer)
 nmp.finish_training()
 
