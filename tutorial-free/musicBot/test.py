@@ -6,13 +6,15 @@ from dataclasses import dataclass, field
 import os
 import argparse
 import torch
+from tqdm import tqdm
+tqdm.pandas()
 
 def setup_args():
     """
     设置训练参数
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_name_or_path', default= 'roberta-base' , type=str, required=True, help='')
+    parser.add_argument('--model_name_or_path', default= 't5-small' , type=str, required=False, help='')
     parser.add_argument('--per_device_train_batch_size', default= 4 , type=int, required=False, help='')
     parser.add_argument('--learning_rate', default= 0.002 , type=float, required=False, help='')
     parser.add_argument('--num_train_epochs', default= 10000 , type=int, required=False, help='')
@@ -23,7 +25,7 @@ def setup_args():
     parser.add_argument("--weight_decay", default=0.01, type=float)
     parser.add_argument("--max_grad_norm", default=1, type=float)
     parser.add_argument("--warmup_steps", default=5000, type=float)
-    parser.add_argument('--output_dir', default= 'saved_model' , type=str, required=False, help='')
+    parser.add_argument('--output_dir', default= 'model_1' , type=str, required=False, help='')
     parser.add_argument('--save_steps', default=5000, type=int, required=False, help='')
     parser.add_argument('--max_steps', default=1000, type=int, required=False, help='')
     
@@ -55,7 +57,7 @@ from transformers import (
     Seq2SeqTrainer, 
 )
 # load customer tokenizer
-tokenizer = T5Tokenizer(vocab_file = "subword.model")
+tokenizer = T5Tokenizer.from_pretrained("t5-small")
 # add special tokens
 special_tokens_dict = {'additional_special_tokens': ['<s>']}
 num_addtokens = tokenizer.add_special_tokens(special_tokens_dict)
@@ -93,19 +95,18 @@ data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=model)
 """
 Load optimizer.
 """
+
+# setup optimizer...
 from torch_optimizer import Adafactor
 from torch.nn.utils import clip_grad_norm_
 from transformers import get_linear_schedule_with_warmup
-# setup optimizer...
-model.train()
-
 print('setup optimizer...')
-param_optimizer = list(model.named_parameters())
+param_optimizer = list(ddp_model.named_parameters())
 no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
 optimizer_grouped_parameters = [
     {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': training_args.weight_decay},
     {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}]
-#optimizer = AdamW(optimizer_grouped_parameters, lr=training_args.learning_rate)
+
 optimizer = Adafactor(
         optimizer_grouped_parameters, lr=training_args.learning_rate,
     )
@@ -114,7 +115,7 @@ optimizer = Adafactor(
 Load custom trainer.
 """
 
-def train(train_dataloader, training_args, model,optimizer, device):
+def train(train_dataloader, training_args, model,optimizer):
 
     schedule_total = training_args.max_steps 
 
@@ -122,6 +123,8 @@ def train(train_dataloader, training_args, model,optimizer, device):
         optimizer, num_warmup_steps=training_args.warmup_steps, num_training_steps=schedule_total
     )
 
+    training_args.output_dir = 'saved_model'
+    device = torch.device("cuda:{}".format(training_args.local_rank))
     completed_steps = 0
     epoch = nmp.cur_epoch
     for epoch in range(training_args.num_train_epochs):
@@ -203,12 +206,14 @@ dataloader = DataLoader(
     )
 
 # setup device
-device = torch.device("cuda:{}".format(args.local_rank))
+device = torch.device("cuda:{}".format(training_args.local_rank))
 model.to(device)
 ddp_model = NetmindDistributedModel(
         torch.nn.parallel.DistributedDataParallel(model, device_ids=[training_args.local_rank], output_device=training_args.local_rank)
     )
-optimizer = NetmindOptimizer(get_optimizer(ddp_model, training_args))
+
+optimizer = NetmindOptimizer(optimizer)
+
 nmp.init_train_bar(total_epoch=training_args.num_train_epochs, step_per_epoch=len(dataloader))
-train(dataloader, training_args, ddp_model, optimizer, device)
+train(dataloader, training_args, ddp_model, optimizer)
 nmp.finish_training()
