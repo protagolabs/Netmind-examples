@@ -6,6 +6,8 @@ from dataclasses import dataclass, field
 import os
 import argparse
 import torch
+from tqdm import tqdm
+tqdm.pandas()
 
 def setup_args():
     """
