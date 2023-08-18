@@ -90,21 +90,17 @@ train_data = CDNDataset(train_data)
 
 data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=model)
 
-from torch_optimizer import Adafactor
-from torch.nn.utils import clip_grad_norm_
-from transformers import get_linear_schedule_with_warmup
-
-schedule_total = training_args.max_steps 
-
-scheduler = get_linear_schedule_with_warmup(
-    optimizer, num_warmup_steps=training_args.warmup_steps, num_training_steps=schedule_total
-)
-
 """
 Load custom trainer.
 """
 
 def train(train_dataloader, training_args, model,optimizer):
+
+    schedule_total = training_args.max_steps 
+
+    scheduler = get_linear_schedule_with_warmup(
+        optimizer, num_warmup_steps=training_args.warmup_steps, num_training_steps=schedule_total
+    )
 
     training_args.output_dir = 'saved_model'
     device = torch.device("cuda:{}".format(training_args.local_rank))
@@ -200,7 +196,9 @@ Load optimizer.
 """
 
 # setup optimizer...
-
+from torch_optimizer import Adafactor
+from torch.nn.utils import clip_grad_norm_
+from transformers import get_linear_schedule_with_warmup
 print('setup optimizer...')
 param_optimizer = list(ddp_model.named_parameters())
 no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
@@ -211,6 +209,7 @@ optimizer_grouped_parameters = [
 optimizer = Adafactor(
         optimizer_grouped_parameters, lr=training_args.learning_rate,
     )
+
 optimizer = NetmindOptimizer(optimizer)
 
 nmp.init_train_bar(total_epoch=training_args.num_train_epochs, step_per_epoch=len(dataloader))
