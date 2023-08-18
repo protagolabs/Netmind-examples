@@ -55,7 +55,7 @@ from transformers import (
     Seq2SeqTrainer, 
 )
 # load customer tokenizer
-tokenizer = T5Tokenizer(vocab_file = "subword.model")
+tokenizer = T5Tokenizer.from_pretrained("t5-small")
 # add special tokens
 special_tokens_dict = {'additional_special_tokens': ['<s>']}
 num_addtokens = tokenizer.add_special_tokens(special_tokens_dict)
