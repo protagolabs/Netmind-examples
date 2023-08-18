@@ -204,7 +204,9 @@ dataloader = DataLoader(
         sampler=dateset_sampler
     )
 
-
+# setup device
+device = torch.device("cuda:{}".format(args.local_rank))
+model.to(device)
 ddp_model = NetmindDistributedModel(
         torch.nn.parallel.DistributedDataParallel(model, device_ids=[training_args.local_rank], output_device=training_args.local_rank)
     )
