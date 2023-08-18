@@ -90,6 +90,10 @@ train_data = CDNDataset(train_data)
 
 data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=model)
 
+from torch_optimizer import Adafactor
+from torch.nn.utils import clip_grad_norm_
+from transformers import get_linear_schedule_with_warmup
+
 schedule_total = training_args.max_steps 
 
 scheduler = get_linear_schedule_with_warmup(
@@ -194,9 +198,7 @@ ddp_model = NetmindDistributedModel(
 """
 Load optimizer.
 """
-from torch_optimizer import Adafactor
-from torch.nn.utils import clip_grad_norm_
-from transformers import get_linear_schedule_with_warmup
+
 # setup optimizer...
 
 print('setup optimizer...')
