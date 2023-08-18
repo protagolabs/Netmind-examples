@@ -152,14 +152,6 @@ def train(train_dataloader, training_args, model,optimizer):
                 "Learning rate": scheduler.get_last_lr()[0]
             }
 
-            if isinstance(training_args.save_steps, int):
-                if completed_steps % training_args.save_steps == 0:
-                    output_dir = f"step_{completed_steps}"
-                    if training_args.output_dir is not None:
-                        output_dir = os.path.join(training_args.output_dir, output_dir)
-                    # accelerator.save_state(output_dir)
-                    model.save_pretrained(output_dir)
-
             nmp.step(monitor_metrics)
 
             if completed_steps == training_args.max_steps:
