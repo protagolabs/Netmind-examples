@@ -101,7 +101,7 @@ from torch_optimizer import Adafactor
 from torch.nn.utils import clip_grad_norm_
 from transformers import get_linear_schedule_with_warmup
 print('setup optimizer...')
-param_optimizer = list(ddp_model.named_parameters())
+param_optimizer = list(model.named_parameters())
 no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
 optimizer_grouped_parameters = [
     {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': training_args.weight_decay},
@@ -123,7 +123,6 @@ def train(train_dataloader, training_args, model,optimizer):
         optimizer, num_warmup_steps=training_args.warmup_steps, num_training_steps=schedule_total
     )
 
-    training_args.output_dir = 'saved_model'
     device = torch.device("cuda:{}".format(training_args.local_rank))
     completed_steps = 0
     epoch = nmp.cur_epoch
@@ -170,14 +169,6 @@ def train(train_dataloader, training_args, model,optimizer):
                 "loss": loss.item(),
                 "Learning rate": scheduler.get_last_lr()[0]
             }
-
-            if isinstance(training_args.save_steps, int):
-                if completed_steps % training_args.save_steps == 0:
-                    output_dir = f"step_{completed_steps}"
-                    if training_args.output_dir is not None:
-                        output_dir = os.path.join(training_args.output_dir, output_dir)
-                    # accelerator.save_state(output_dir)
-                    model.save_pretrained(output_dir)
 
             nmp.step(monitor_metrics)
 
