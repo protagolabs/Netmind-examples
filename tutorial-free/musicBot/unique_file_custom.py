@@ -104,7 +104,6 @@ def train(train_dataloader, training_args, model,optimizer):
         optimizer, num_warmup_steps=training_args.warmup_steps, num_training_steps=schedule_total
     )
 
-    training_args.output_dir = 'saved_model'
     device = torch.device("cuda:{}".format(training_args.local_rank))
     completed_steps = 0
     epoch = nmp.cur_epoch
