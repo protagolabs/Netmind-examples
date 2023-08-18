@@ -90,26 +90,6 @@ train_data = CDNDataset(train_data)
 
 data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=model)
 
-"""
-Load optimizer.
-"""
-from torch_optimizer import Adafactor
-from torch.nn.utils import clip_grad_norm_
-from transformers import get_linear_schedule_with_warmup
-# setup optimizer...
-model.train()
-
-print('setup optimizer...')
-param_optimizer = list(model.named_parameters())
-no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
-optimizer_grouped_parameters = [
-    {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': training_args.weight_decay},
-    {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}]
-#optimizer = AdamW(optimizer_grouped_parameters, lr=training_args.learning_rate)
-optimizer = Adafactor(
-        optimizer_grouped_parameters, lr=training_args.learning_rate,
-    )
-
 schedule_total = training_args.max_steps 
 
 scheduler = get_linear_schedule_with_warmup(
@@ -210,7 +190,27 @@ model.to(device)
 ddp_model = NetmindDistributedModel(
         torch.nn.parallel.DistributedDataParallel(model, device_ids=[training_args.local_rank], output_device=training_args.local_rank)
     )
-optimizer = NetmindOptimizer(get_optimizer(ddp_model, training_args))
+
+"""
+Load optimizer.
+"""
+from torch_optimizer import Adafactor
+from torch.nn.utils import clip_grad_norm_
+from transformers import get_linear_schedule_with_warmup
+# setup optimizer...
+
+print('setup optimizer...')
+param_optimizer = list(ddp_model.named_parameters())
+no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
+optimizer_grouped_parameters = [
+    {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': training_args.weight_decay},
+    {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}]
+
+optimizer = Adafactor(
+        optimizer_grouped_parameters, lr=training_args.learning_rate,
+    )
+optimizer = NetmindOptimizer(optimizer)
+
 nmp.init_train_bar(total_epoch=training_args.num_train_epochs, step_per_epoch=len(dataloader))
 train(dataloader, training_args, ddp_model, optimizer)
 nmp.finish_training()
