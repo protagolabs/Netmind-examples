@@ -21,8 +21,8 @@ training_args = Seq2SeqTrainingArguments(
     save_total_limit=3,
     warmup_steps=2000,
     num_train_epochs=1000,
-    max_steps=10000,
-    save_steps=5000,
+    max_steps=1000,
+    save_steps=500,
     fp16=True,
     report_to="none",
 )
