@@ -1,0 +1,15 @@
+numpy
+pandas
+torch
+torchvision
+torch-optimizer
+tqdm
+accelerate
+transformers
+matplotlib
+datasets
+huggingface-hub
+sentencepiece
+argparse
+tensorboard
+
