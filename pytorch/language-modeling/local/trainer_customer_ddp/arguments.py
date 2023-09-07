@@ -8,7 +8,7 @@ def setup_args():
     设置训练参数
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_name_or_path', default= 'roberta-base' , type=str, required=True, help='')
+    parser.add_argument('--model_name_or_path', default= 'roberta-base' , type=str, required=False, help='')
     parser.add_argument('--per_device_train_batch_size', default= 16 , type=int, required=False, help='')
     parser.add_argument('--learning_rate', default= 1e-4 , type=float, required=False, help='')
     parser.add_argument('--num_train_epochs', default= 3 , type=int, required=False, help='')
